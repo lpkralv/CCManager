@@ -1,0 +1,277 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working with code in this repository.
+
+## Project Overview
+
+This is a **Python project** for {{PROJECT_DESCRIPTION}}.
+
+**Project Type**: {{PROJECT_TYPE}} (e.g., CLI tool, web service, data science, ML/AI, library)
+
+## Development Setup
+
+### Python Version
+- **Required**: Python {{PYTHON_VERSION}} (e.g., 3.11+, 3.9-3.11)
+- Check version: `python3 --version`
+
+### Dependency Management
+- **Tool**: {{DEPENDENCY_TOOL}} (e.g., pip, poetry, conda, pipenv)
+- **Requirements**: `{{REQUIREMENTS_FILE}}` (e.g., requirements.txt, pyproject.toml, environment.yml)
+
+### Virtual Environment Setup
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate (Linux/Mac)
+source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Install dependencies
+{{INSTALL_COMMAND}}
+# Examples:
+# pip install -r requirements.txt
+# poetry install
+# conda env create -f environment.yml
+```
+
+### Project Structure
+```
+src/              - Source code
+  {{PACKAGE_NAME}}/   - Main package
+    __init__.py
+    {{MAIN_MODULE}}.py
+tests/            - Unit tests (pytest)
+docs/             - Documentation
+background/       - Reference materials
+scripts/          - Utility scripts
+{{CONFIG_FILES}}  - Configuration files
+```
+
+## Key Components
+
+{{COMPONENTS_DESCRIPTION}}
+<!--
+Example:
+1. **Data processing pipeline** - ETL workflows
+2. **API client** - REST API integration
+3. **ML models** - Training and inference
+4. **CLI interface** - Command-line tools
+-->
+
+## Common Development Tasks
+
+### Running the Application
+```bash
+# Main entry point
+{{RUN_COMMAND}}
+# Examples:
+# python -m src.main
+# python src/cli.py --help
+# uvicorn src.api:app --reload
+```
+
+### Testing
+```bash
+# Run all tests
+{{TEST_COMMAND}}
+# Examples:
+# pytest
+# python -m pytest tests/
+# pytest --cov=src tests/
+
+# Run specific test file
+pytest tests/test_{{MODULE}}.py
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+```
+
+### Linting & Formatting
+```bash
+# Format code
+{{FORMAT_COMMAND}}
+# Examples:
+# black src/ tests/
+# ruff format src/ tests/
+
+# Check linting
+{{LINT_COMMAND}}
+# Examples:
+# ruff check src/
+# pylint src/
+# flake8 src/
+
+# Type checking
+{{TYPE_CHECK_COMMAND}}
+# Examples:
+# mypy src/
+# pyright src/
+```
+
+## Code Style & Standards
+
+### Style Guide
+- Follow **{{STYLE_GUIDE}}** (e.g., PEP 8, Black, Google Python Style Guide)
+- Line length: {{LINE_LENGTH}} characters (e.g., 88 for Black, 100 for others)
+- Type hints: {{TYPE_HINTS_POLICY}} (e.g., Required for all functions, Optional, Strict mode)
+
+### Naming Conventions
+- **Modules**: lowercase_with_underscores.py
+- **Classes**: CapitalizedWords
+- **Functions**: lowercase_with_underscores()
+- **Constants**: UPPERCASE_WITH_UNDERSCORES
+- **Private**: _leading_underscore
+
+### Documentation
+- **Docstrings**: {{DOCSTRING_STYLE}} (e.g., Google, NumPy, Sphinx)
+- **Type hints**: Use for function signatures
+- **Comments**: Explain "why", not "what"
+
+## Dependencies
+
+### Core Dependencies
+{{CORE_DEPENDENCIES}}
+<!--
+Example:
+- requests: HTTP client
+- pandas: Data manipulation
+- fastapi: Web framework
+- torch: Deep learning
+-->
+
+### Dev Dependencies
+{{DEV_DEPENDENCIES}}
+<!--
+Example:
+- pytest: Testing framework
+- black: Code formatter
+- mypy: Type checker
+- ruff: Fast linter
+-->
+
+## Environment Variables
+
+{{ENV_VARS}}
+<!--
+Example:
+- `API_KEY`: Required - API authentication key
+- `DATABASE_URL`: Required - Database connection string
+- `LOG_LEVEL`: Optional - Logging verbosity (default: INFO)
+- `DEBUG`: Optional - Enable debug mode (default: False)
+
+Store in `.env` file (not committed to git)
+-->
+
+## Configuration
+
+{{CONFIGURATION}}
+<!--
+Example:
+- Configuration file: `config.yaml` or `settings.py`
+- Environment-specific configs: `config/dev.yaml`, `config/prod.yaml`
+- Load with: python-dotenv, pydantic Settings, etc.
+-->
+
+## Testing Strategy
+
+### Unit Tests
+- Location: `tests/unit/`
+- Framework: {{TEST_FRAMEWORK}} (e.g., pytest, unittest)
+- Coverage target: {{COVERAGE_TARGET}}% (e.g., >80%)
+- Run before each commit
+
+### Integration Tests
+- Location: `tests/integration/`
+- Test external dependencies (databases, APIs)
+- Use mocking for expensive operations
+
+### Test Fixtures
+- Shared fixtures in `tests/conftest.py`
+- Use pytest fixtures for setup/teardown
+- Mock external services
+
+## Performance Considerations
+
+{{PERFORMANCE_NOTES}}
+<!--
+Example:
+- Use generators for large datasets
+- Profile with cProfile or py-spy
+- Optimize hot paths identified by profiling
+- Consider async/await for I/O-bound operations
+- Use multiprocessing for CPU-bound tasks
+-->
+
+## Security
+
+{{SECURITY_NOTES}}
+<!--
+Example:
+- Never commit secrets (.env in .gitignore)
+- Use environment variables for sensitive data
+- Validate all user inputs
+- Keep dependencies updated (Dependabot)
+- Run security scans: bandit, safety
+-->
+
+## Deployment
+
+{{DEPLOYMENT_INFO}}
+<!--
+Example:
+- **Container**: Dockerfile included
+- **Cloud**: AWS Lambda / GCP Cloud Functions / Azure Functions
+- **Server**: systemd service / supervisor
+- **Dependencies**: requirements-prod.txt (pinned versions)
+-->
+
+## Version Control
+
+- **Repository**: {{GITHUB_REPO}}
+- **User**: {{GITHUB_USER}}
+- **Branch strategy**: {{BRANCH_STRATEGY}} (e.g., main, develop + feature branches)
+- **Commit format**: {{COMMIT_FORMAT}} (e.g., Conventional Commits)
+
+## CI/CD
+
+{{CI_CD_INFO}}
+<!--
+Example:
+- **Platform**: GitHub Actions / GitLab CI / Jenkins
+- **Pipeline stages**:
+  1. Lint (ruff, mypy)
+  2. Test (pytest with coverage)
+  3. Build (Docker image)
+  4. Deploy (if main branch)
+- **Pre-commit hooks**: black, ruff, pytest
+-->
+
+## Troubleshooting
+
+### Common Issues
+{{COMMON_ISSUES}}
+<!--
+Example:
+1. **Import errors**: Ensure virtual environment is activated
+2. **Dependency conflicts**: Delete venv and reinstall
+3. **Test failures**: Check environment variables in .env
+4. **Type errors**: Run mypy and fix type hints
+-->
+
+## Additional Resources
+
+- **Documentation**: {{DOCS_LOCATION}} (e.g., docs/, wiki, ReadTheDocs)
+- **API Reference**: {{API_DOCS}} (e.g., /docs/api.md, auto-generated)
+- **Architecture**: {{ARCHITECTURE_DOCS}} (e.g., docs/architecture.md)
+
+---
+
+**Notes for Claude Code:**
+- ALWAYS use subagents to perform parallel tasks in parallel when possible
+- Run tests after significant changes
+- Check type hints with mypy before committing
+- Use code-reviewer agent for quality checks
+- Use test-generator agent for comprehensive test coverage

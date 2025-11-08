@@ -1,0 +1,223 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working with code in this repository.
+
+## Project Overview
+
+This is an **embedded firmware project** built with PlatformIO.
+
+**{{PROJECT_DESCRIPTION}}**
+
+## Hardware Architecture
+
+### Target Microcontroller
+- **MCU**: {{MCU_NAME}} (e.g., ATtiny85, STM32F4, ESP32)
+- **Clock**: {{CLOCK_SPEED}} (e.g., 8 MHz internal, 168 MHz)
+- **Flash**: {{FLASH_SIZE}} (e.g., 8 KB, 512 KB)
+- **RAM**: {{RAM_SIZE}} (e.g., 512 bytes, 128 KB)
+- **Operating Voltage**: {{VOLTAGE}} (e.g., 3.3V, 5V)
+
+### Pin Assignments
+{{PIN_ASSIGNMENTS}}
+<!--
+Example:
+- **PA0**: UART TX → External device RX
+- **PA1**: UART RX ← External device TX
+- **PA2**: LED indicator (active high)
+- **PA3**: Button input (active low, internal pull-up)
+-->
+
+### Peripherals
+{{PERIPHERALS_LIST}}
+<!--
+Example:
+- UART: Communication with external device
+- SPI: Display interface
+- I2C: Sensor communication
+- ADC: Battery voltage monitoring
+- PWM: Motor control
+-->
+
+### Critical Design Constraints
+{{DESIGN_CONSTRAINTS}}
+<!--
+Example:
+- Memory budget: Tight - optimize for code size
+- Power consumption: Battery powered - use sleep modes
+- Real-time requirements: ISR must complete in <10μs
+- Pin sharing: ADC and motor control share same pin
+-->
+
+## Firmware Components
+
+The firmware integrates:
+{{FIRMWARE_COMPONENTS}}
+<!--
+Example:
+1. **Communication protocol** for host ↔ MCU communication
+2. **Sensor drivers** for data acquisition
+3. **Power management** with deep sleep/wakeup
+4. **Peripheral control** (motors, LEDs, displays)
+-->
+
+## Development Setup
+
+### Platform
+- **Platform**: PlatformIO for Arduino / Zephyr / STM32Cube / ESP-IDF
+- **Framework**: {{FRAMEWORK}} (e.g., Arduino, Zephyr RTOS, bare metal)
+- **Board**: {{BOARD_NAME}}
+- **Programmer**: {{PROGRAMMER}} (e.g., AVR ISP, ST-Link, J-Link)
+
+### Key Libraries
+{{LIBRARIES_LIST}}
+<!--
+Example:
+- Adafruit_Sensor: Sensor abstraction layer
+- Wire: I2C communication
+- Custom drivers in lib/
+-->
+
+### Project Structure
+```
+src/          - Main firmware source code
+lib/          - Local libraries and drivers
+docs/         - Design documentation
+background/   - Datasheets, reference implementations
+test/         - Unit tests and hardware tests
+platformio.ini - PlatformIO configuration
+```
+
+## Common Development Tasks
+
+### PlatformIO Commands
+```bash
+# Build firmware
+pio run
+
+# Upload to target
+pio run --target upload
+
+# Serial monitor
+pio device monitor
+
+# Clean build
+pio run --target clean
+
+# Run tests
+pio test
+```
+
+### Programming Notes
+{{PROGRAMMING_NOTES}}
+<!--
+Example:
+- **ISP Programming**: Use 6-pin SWD/JTAG header
+- **Fuse settings**: Configure for external crystal / internal oscillator
+- **Bootloader**: Optional - for OTA updates
+-->
+
+## Critical Implementation Details
+
+### Timer Usage
+{{TIMER_USAGE}}
+<!--
+Example:
+- **Timer0**: System tick (Arduino millis/micros)
+- **Timer1**: PWM generation for motor control
+- **Timer2**: Reserved for audio synthesis
+-->
+
+### Interrupt Priorities
+{{INTERRUPT_PRIORITIES}}
+<!--
+Example:
+- **Highest**: Critical communication ISR
+- **Medium**: Sensor data ready
+- **Lowest**: User interface updates
+-->
+
+### Memory Optimization Guidelines
+{{MEMORY_GUIDELINES}}
+<!--
+Example:
+- Use PROGMEM for const data (Flash storage)
+- Avoid deep recursion (limited stack)
+- Use uint8_t/uint16_t instead of int where possible
+- Minimize global variables
+-->
+
+### Power Management
+{{POWER_MANAGEMENT}}
+<!--
+Example:
+- Normal operation: {{NORMAL_CLOCK}} clock
+- Low power mode: Sleep when idle, wake on interrupt
+- Ultra-low power: Deep sleep with RTC wakeup
+- Battery monitoring: ADC reading every 60 seconds
+-->
+
+## Hardware Reference
+
+Full hardware specifications available in:
+- `docs/HardwareDefinition.md` - Complete hardware specs
+- `background/info/` - Datasheets and app notes
+
+## Memory Budget
+
+**Flash: {{FLASH_USED}} / {{FLASH_TOTAL}} bytes ({{FLASH_PERCENT}}%)**
+- {{FLASH_REMAINING}} bytes remaining for future features
+
+**RAM: {{RAM_USED}} / {{RAM_TOTAL}} bytes ({{RAM_PERCENT}}%)**
+- {{RAM_REMAINING}} bytes headroom
+
+**Key Constraints:**
+- Monitor memory usage with `pio run --verbose`
+- Use `avr-nm` or `arm-none-eabi-nm` to analyze symbol sizes
+- Keep RAM headroom >10% to avoid stack overflow
+
+## Version Control
+
+- **Repository**: {{GITHUB_REPO}}
+- **User**: {{GITHUB_USER}}
+- Development workflow: Feature branches → PR → main
+- Commit messages: Follow Conventional Commits format
+
+## Best Practices
+
+### Code Style
+- Follow {{CODE_STYLE}} (e.g., Google C++ Style, Arduino conventions)
+- Use meaningful variable names
+- Comment hardware interactions and timing-critical code
+- Document ISR behavior and constraints
+
+### Testing
+- Unit tests in `test/` directory
+- Hardware-in-loop testing for peripheral drivers
+- Memory leak detection (valgrind for simulation)
+- Timing verification with oscilloscope/logic analyzer
+
+### Documentation
+- Update HardwareDefinition.md for pin changes
+- Document calibration procedures
+- Keep design decisions in docs/Design_Summary.md
+- Add TODO comments for known issues
+
+## Safety & Reliability
+
+{{SAFETY_NOTES}}
+<!--
+Example:
+- Watchdog timer: Enable for production builds
+- Brown-out detection: Set appropriate threshold
+- ESD protection: Follow layout guidelines
+- Fault recovery: Safe state on error/timeout
+-->
+
+---
+
+**Notes for Claude Code:**
+- ALWAYS use subagents to perform parallel tasks in parallel when possible
+- Check memory budget after significant changes
+- Reference datasheets in background/info/ for peripheral details
+- Use hardware-reviewer agent for design validation
+- Use memory-monitor agent to track Flash/RAM usage

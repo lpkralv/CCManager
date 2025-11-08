@@ -1,0 +1,135 @@
+{
+  "version": "1.0.0",
+  "description": "CCSTARTUP initialization configuration",
+
+  "project_types": {
+    "embedded-platformio": {
+      "name": "Embedded PlatformIO",
+      "description": "PlatformIO-based embedded firmware project",
+      "template_path": "init/templates/embedded-platformio/CLAUDE.md.template",
+      "agents": ["code-reviewer", "test-generator", "hardware-reviewer", "power-optimizer", "memory-monitor"],
+      "detection_indicators": ["platformio.ini"],
+      "required_placeholders": [
+        "PROJECT_DESCRIPTION",
+        "MCU_NAME",
+        "CLOCK_SPEED",
+        "FLASH_SIZE",
+        "RAM_SIZE",
+        "VOLTAGE"
+      ],
+      "optional_placeholders": [
+        "PIN_ASSIGNMENTS",
+        "PERIPHERALS_LIST",
+        "DESIGN_CONSTRAINTS",
+        "FIRMWARE_COMPONENTS",
+        "FRAMEWORK",
+        "BOARD_NAME",
+        "PROGRAMMER",
+        "LIBRARIES_LIST",
+        "PROGRAMMING_NOTES",
+        "TIMER_USAGE",
+        "INTERRUPT_PRIORITIES",
+        "MEMORY_GUIDELINES",
+        "POWER_MANAGEMENT"
+      ]
+    },
+
+    "python": {
+      "name": "Python Project",
+      "description": "Python application or library",
+      "template_path": "init/templates/python/CLAUDE.md.template",
+      "agents": ["code-reviewer", "test-generator"],
+      "detection_indicators": ["pyproject.toml", "requirements.txt", "setup.py"],
+      "required_placeholders": [
+        "PROJECT_DESCRIPTION",
+        "PROJECT_TYPE",
+        "PYTHON_VERSION",
+        "DEPENDENCY_TOOL",
+        "REQUIREMENTS_FILE"
+      ],
+      "optional_placeholders": [
+        "PACKAGE_NAME",
+        "MAIN_MODULE",
+        "CONFIG_FILES",
+        "RUN_COMMAND",
+        "TEST_COMMAND",
+        "FORMAT_COMMAND",
+        "LINT_COMMAND",
+        "TYPE_CHECK_COMMAND"
+      ]
+    },
+
+    "nodejs": {
+      "name": "Node.js Project",
+      "description": "Node.js/TypeScript application",
+      "template_path": "init/templates/nodejs/CLAUDE.md.template",
+      "agents": ["code-reviewer", "test-generator"],
+      "detection_indicators": ["package.json"],
+      "required_placeholders": [
+        "PROJECT_DESCRIPTION",
+        "PROJECT_TYPE",
+        "NODE_VERSION",
+        "PACKAGE_MANAGER",
+        "LOCK_FILE"
+      ],
+      "optional_placeholders": [
+        "LANGUAGE",
+        "TS_VERSION",
+        "TARGET",
+        "MODULE_SYSTEM",
+        "FRAMEWORK",
+        "DEV_COMMAND",
+        "START_COMMAND",
+        "BUILD_COMMAND",
+        "TEST_COMMAND"
+      ]
+    },
+
+    "cpp": {
+      "name": "C/C++ Project",
+      "description": "Native C/C++ application or library",
+      "template_path": "init/templates/cpp/CLAUDE.md.template",
+      "agents": ["code-reviewer", "test-generator"],
+      "detection_indicators": ["CMakeLists.txt", "Makefile"],
+      "required_placeholders": [
+        "PROJECT_DESCRIPTION",
+        "PROJECT_TYPE",
+        "COMPILER",
+        "CPP_STANDARD",
+        "BUILD_SYSTEM"
+      ],
+      "optional_placeholders": [
+        "C_STANDARD",
+        "PACKAGE_MANAGER",
+        "REQUIRED_LIBS",
+        "CMAKE_FLAGS",
+        "BUILD_COMMAND",
+        "TEST_COMMAND",
+        "BUILD_FILES"
+      ]
+    }
+  },
+
+  "common_placeholders": {
+    "GITHUB_REPO": {
+      "description": "GitHub repository URL",
+      "auto_generate": true,
+      "pattern": "https://github.com/{GITHUB_USER}/{repo_name}"
+    },
+    "GITHUB_USER": {
+      "description": "GitHub username",
+      "default": "{{infer from git config}}"
+    }
+  },
+
+  "settings": {
+    "auto_detect_project_type": true,
+    "ask_before_github_creation": true,
+    "default_github_visibility": "private",
+    "preserve_init_folder": true,
+    "minimum_headroom": {
+      "flash_percent": 15,
+      "ram_percent": 10
+    }
+  }
+}

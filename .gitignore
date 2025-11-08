@@ -1,0 +1,48 @@
+# OS files
+.DS_Store
+Thumbs.db
+*~
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+build/
+dist/
+*.o
+*.elf
+*.hex
+*.bin
+.pio/
+
+# Temporary
+*.log
+*.tmp
+
+# Project-specific (users will have their own)
+src/*
+!src/README.md
+docs/*
+!docs/README.md
+background/code/*
+!background/code/PLACE_REFERENCE_CODE_HERE.md
+background/info/*
+!background/info/PLACE_REFERENCE_DOCS_HERE.md
+
+# Local Claude settings (not the template)
+.claude/settings.local.json

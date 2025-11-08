@@ -1,0 +1,405 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working with code in this repository.
+
+## Project Overview
+
+This is a **C/C++ project** for {{PROJECT_DESCRIPTION}}.
+
+**Project Type**: {{PROJECT_TYPE}} (e.g., CLI application, library, system tool, game)
+
+## Development Setup
+
+### Compiler & Toolchain
+- **Compiler**: {{COMPILER}} (e.g., GCC 11+, Clang 14+, MSVC 2022)
+- **C++ Standard**: {{CPP_STANDARD}} (e.g., C++17, C++20, C++23)
+- **C Standard**: {{C_STANDARD}} (e.g., C11, C17, C23)
+- **Build system**: {{BUILD_SYSTEM}} (CMake, Make, Meson, Bazel)
+
+### Dependencies
+- **Package manager**: {{PACKAGE_MANAGER}} (e.g., vcpkg, Conan, system packages)
+- **Required libraries**: {{REQUIRED_LIBS}}
+
+### Build Instructions
+```bash
+# CMake example
+mkdir build && cd build
+cmake .. {{CMAKE_FLAGS}}
+make -j$(nproc)
+
+# Alternative build command
+{{BUILD_COMMAND}}
+
+# Run tests
+{{TEST_COMMAND}}
+# make test
+# ctest --output-on-failure
+```
+
+### Project Structure
+```
+src/              - Source files (.cpp, .c)
+include/          - Public header files (.h, .hpp)
+  {{PROJECT}}/   - Project-specific headers
+tests/            - Unit tests
+docs/             - Documentation
+background/       - Reference materials
+build/            - Build outputs (not committed)
+CMakeLists.txt    - CMake configuration
+{{BUILD_FILES}}   - Additional build files
+```
+
+## Technology Stack
+
+### Language Features
+{{LANGUAGE_FEATURES}}
+<!--
+Example:
+- **C++20 features**: Concepts, ranges, coroutines
+- **Templates**: Heavy use of template metaprogramming
+- **Standard library**: STL containers, algorithms
+- **Third-party**: Boost, Qt, SDL, etc.
+-->
+
+### Key Libraries
+{{KEY_LIBRARIES}}
+<!--
+Example:
+- **Networking**: Boost.Asio, libcurl
+- **JSON**: nlohmann/json, RapidJSON
+- **Testing**: Google Test, Catch2
+- **Logging**: spdlog, boost.log
+-->
+
+## Build Configuration
+
+### CMake Setup
+{{CMAKE_CONFIG}}
+<!--
+Example:
+```cmake
+cmake_minimum_required(VERSION 3.20)
+project({{PROJECT_NAME}} VERSION 1.0.0)
+
+set(CMAKE_CXX_STANDARD {{CPP_STANDARD}})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Options
+option(BUILD_TESTS "Build tests" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+
+# Compiler flags
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+```
+-->
+
+### Build Types
+{{BUILD_TYPES}}
+<!--
+Example:
+- **Debug**: `-g -O0` - Full symbols, no optimization
+- **Release**: `-O3 -DNDEBUG` - Maximum optimization
+- **RelWithDebInfo**: `-O2 -g` - Optimized with debug info
+- **MinSizeRel**: `-Os` - Size optimization
+-->
+
+## Code Style & Standards
+
+### Coding Standard
+- **Style guide**: {{STYLE_GUIDE}} (e.g., Google C++, LLVM, Mozilla)
+- **Naming**: {{NAMING_CONVENTION}}
+  - Classes: PascalCase or UpperCamelCase
+  - Functions: camelCase or snake_case
+  - Variables: camelCase or snake_case
+  - Constants: UPPER_SNAKE_CASE or kConstantName
+  - Namespaces: lowercase
+
+### Header Organization
+{{HEADER_ORGANIZATION}}
+<!--
+Example:
+- Header guards: `#pragma once` or `#ifndef HEADER_H`
+- Include order: System headers → Third-party → Project headers
+- Forward declarations: Use to reduce compile time
+- Inline functions: In headers when small
+-->
+
+### Code Quality
+- **Linter**: {{LINTER}} (clang-tidy, cppcheck, cpplint)
+- **Formatter**: {{FORMATTER}} (clang-format)
+- **Static analysis**: {{STATIC_ANALYZER}} (clang-analyzer, PVS-Studio)
+
+## Memory Management
+
+### Strategy
+{{MEMORY_STRATEGY}}
+<!--
+Example:
+- **Ownership**: Use smart pointers (unique_ptr, shared_ptr)
+- **RAII**: Resource Acquisition Is Initialization
+- **Manual management**: Avoid raw new/delete
+- **Containers**: Prefer STL containers over manual arrays
+-->
+
+### Common Patterns
+{{MEMORY_PATTERNS}}
+<!--
+Example:
+- Use `std::unique_ptr` for exclusive ownership
+- Use `std::shared_ptr` for shared ownership
+- Use `std::weak_ptr` to break circular references
+- Avoid naked pointers for ownership
+- Use references for non-owning access
+-->
+
+## Error Handling
+
+### Strategy
+{{ERROR_HANDLING}}
+<!--
+Example:
+- **Exceptions**: Use for exceptional cases (C++17 std::expected in future)
+- **Return codes**: For performance-critical paths
+- **Assertions**: Debug builds only
+- **Logging**: Error messages with context
+-->
+
+## Common Development Tasks
+
+### Building
+```bash
+# Clean build
+{{CLEAN_BUILD_COMMAND}}
+# rm -rf build && mkdir build && cd build && cmake .. && make
+
+# Incremental build
+{{INCREMENTAL_BUILD_COMMAND}}
+# cd build && make -j$(nproc)
+
+# Verbose build
+{{VERBOSE_BUILD_COMMAND}}
+# make VERBOSE=1
+```
+
+### Testing
+```bash
+# Run all tests
+{{RUN_TESTS_COMMAND}}
+# ctest --output-on-failure
+# ./build/tests/all_tests
+
+# Run specific test
+{{RUN_SPECIFIC_TEST}}
+# ctest -R TestName
+# ./build/tests/specific_test
+
+# Valgrind (memory leaks)
+{{VALGRIND_COMMAND}}
+# valgrind --leak-check=full ./build/app
+```
+
+### Debugging
+```bash
+# GDB
+{{GDB_COMMAND}}
+# gdb ./build/app
+# gdb --args ./build/app arg1 arg2
+
+# LLDB
+{{LLDB_COMMAND}}
+# lldb ./build/app
+```
+
+### Profiling
+```bash
+# CPU profiling
+{{CPU_PROFILE_COMMAND}}
+# perf record ./build/app
+# gprof ./build/app gmon.out
+
+# Memory profiling
+{{MEM_PROFILE_COMMAND}}
+# valgrind --tool=massif ./build/app
+```
+
+## Performance Considerations
+
+{{PERFORMANCE_NOTES}}
+<!--
+Example:
+- **Optimization**: Use compiler optimizations (-O2, -O3)
+- **Inlining**: Mark hot functions as inline
+- **Move semantics**: Use std::move for large objects
+- **Reserve**: Pre-allocate container capacity
+- **Const**: Use const for optimization opportunities
+- **Profile**: Measure before optimizing
+-->
+
+## Thread Safety
+
+{{THREAD_SAFETY}}
+<!--
+Example:
+- **Mutexes**: std::mutex, std::lock_guard, std::unique_lock
+- **Atomics**: std::atomic for lock-free operations
+- **Thread pools**: For task parallelism
+- **Data races**: Avoid with proper synchronization
+- **Const**: Thread-safe by default
+-->
+
+## Testing Strategy
+
+### Test Framework
+- **Framework**: {{TEST_FRAMEWORK}} (Google Test, Catch2, Boost.Test)
+- **Coverage**: {{COVERAGE_TOOL}} (gcov, lcov)
+- **Mocking**: {{MOCK_FRAMEWORK}} (Google Mock, FakeIt)
+
+### Test Types
+{{TEST_TYPES}}
+<!--
+Example:
+- **Unit tests**: Test individual functions/classes
+- **Integration tests**: Test component interactions
+- **Performance tests**: Benchmark critical paths
+- **Regression tests**: Prevent old bugs
+-->
+
+## Dependencies Management
+
+### Using vcpkg
+{{VCPKG_USAGE}}
+<!--
+Example:
+```bash
+# Install dependencies
+vcpkg install boost:x64-linux
+vcpkg install fmt:x64-linux
+
+# Integrate with CMake
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+```
+-->
+
+### Using Conan
+{{CONAN_USAGE}}
+<!--
+Example:
+```bash
+# Install dependencies
+conan install . --output-folder=build --build=missing
+
+# Build with Conan
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+make
+```
+-->
+
+## Documentation
+
+### Code Documentation
+- **Tool**: {{DOC_TOOL}} (Doxygen, Sphinx + Breathe)
+- **Format**: {{DOC_FORMAT}} (Doxygen comments, Javadoc-style)
+- **Generate**: {{DOC_GENERATE_COMMAND}}
+
+### API Documentation
+{{API_DOCS}}
+<!--
+Example:
+- Public API documented in headers
+- Internal implementation details in source
+- Examples in docs/ directory
+-->
+
+## Sanitizers & Analysis
+
+### Address Sanitizer
+```bash
+# Detect memory errors
+{{ASAN_COMMAND}}
+# cmake -DCMAKE_CXX_FLAGS="-fsanitize=address -g" ..
+```
+
+### Thread Sanitizer
+```bash
+# Detect data races
+{{TSAN_COMMAND}}
+# cmake -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" ..
+```
+
+### Undefined Behavior Sanitizer
+```bash
+# Detect UB
+{{UBSAN_COMMAND}}
+# cmake -DCMAKE_CXX_FLAGS="-fsanitize=undefined -g" ..
+```
+
+## Platform Support
+
+### Supported Platforms
+{{SUPPORTED_PLATFORMS}}
+<!--
+Example:
+- Linux (GCC, Clang)
+- macOS (Apple Clang)
+- Windows (MSVC, MinGW)
+- Cross-compilation support
+-->
+
+### Platform-Specific Code
+{{PLATFORM_SPECIFIC}}
+<!--
+Example:
+- Use #ifdef _WIN32 for Windows code
+- Use #ifdef __linux__ for Linux code
+- Use #ifdef __APPLE__ for macOS code
+- Abstract platform differences in separate modules
+-->
+
+## Version Control
+
+- **Repository**: {{GITHUB_REPO}}
+- **User**: {{GITHUB_USER}}
+- **Branch strategy**: {{BRANCH_STRATEGY}}
+- **Commit format**: {{COMMIT_FORMAT}}
+
+## CI/CD
+
+{{CI_CD_INFO}}
+<!--
+Example:
+- **Platform**: GitHub Actions / GitLab CI
+- **Build matrix**: GCC/Clang, Debug/Release, Linux/macOS/Windows
+- **Steps**: Build, test, sanitizers, static analysis
+- **Artifacts**: Build outputs, test results, coverage reports
+-->
+
+## Troubleshooting
+
+### Common Issues
+{{COMMON_ISSUES}}
+<!--
+Example:
+1. **Linking errors**: Check library order, missing -l flags
+2. **Undefined references**: Missing implementation or library
+3. **Segmentation fault**: Use gdb or valgrind
+4. **Compilation errors**: Check C++ standard, compiler version
+5. **CMake errors**: Clear build directory, re-run cmake
+-->
+
+## Additional Resources
+
+- **Documentation**: {{DOCS_LOCATION}}
+- **Architecture**: {{ARCHITECTURE_DOCS}}
+- **Build guide**: {{BUILD_GUIDE}}
+
+---
+
+**Notes for Claude Code:**
+- ALWAYS use subagents to perform parallel tasks in parallel when possible
+- Check for memory leaks with valgrind
+- Use code-reviewer agent for quality checks
+- Run static analyzers before committing
+- Keep compilation warnings at zero

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "serena-mcp"
+      ]
+    },
+    "ide": {
+      "command": "code",
+      "args": [
+        "--ms-enable-electron-run-as-node",
+        "/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/mcp-ide/dist/index.js"
+      ]
+    }
+  }
+}

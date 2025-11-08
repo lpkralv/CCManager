@@ -1,0 +1,374 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working with code in this repository.
+
+## Project Overview
+
+This is a **Node.js/TypeScript project** for {{PROJECT_DESCRIPTION}}.
+
+**Project Type**: {{PROJECT_TYPE}} (e.g., web app, API server, CLI tool, library)
+
+## Development Setup
+
+### Node.js Version
+- **Required**: Node.js {{NODE_VERSION}} (e.g., 18.x, 20.x LTS)
+- **Check**: `node --version`
+- **Manage**: Use nvm: `nvm use` (reads from .nvmrc if present)
+
+### Package Manager
+- **Tool**: {{PACKAGE_MANAGER}} (npm, yarn, pnpm, bun)
+- **Lock file**: {{LOCK_FILE}} (package-lock.json, yarn.lock, pnpm-lock.yaml)
+
+### Installation
+```bash
+# Install dependencies
+{{INSTALL_COMMAND}}
+# Examples:
+# npm install
+# yarn install
+# pnpm install
+
+# Install dev dependencies
+{{INSTALL_DEV_COMMAND}}
+# npm install --include=dev
+# yarn install
+```
+
+### Project Structure
+```
+src/                  - Source code (TypeScript/JavaScript)
+  index.ts           - Entry point
+  {{MAIN_DIRS}}/     - Main application modules
+tests/               - Test files
+dist/                - Compiled output (TypeScript)
+public/              - Static assets (if web app)
+docs/                - Documentation
+background/          - Reference materials
+package.json         - Project metadata and scripts
+tsconfig.json        - TypeScript configuration (if using TS)
+{{CONFIG_FILES}}     - Additional config files
+```
+
+## Technology Stack
+
+### Runtime & Language
+- **Language**: {{LANGUAGE}} (TypeScript, JavaScript, both)
+- **TypeScript**: {{TS_VERSION}} (if applicable)
+- **Target**: {{TARGET}} (e.g., ES2022, ESNext)
+- **Module system**: {{MODULE_SYSTEM}} (ESM, CommonJS)
+
+### Framework/Library
+{{FRAMEWORK}}
+<!--
+Examples:
+- **Express**: Web server framework
+- **Fastify**: High-performance web framework
+- **Next.js**: React framework
+- **NestJS**: Enterprise Node.js framework
+- **Electron**: Desktop app framework
+-->
+
+### Key Dependencies
+{{KEY_DEPENDENCIES}}
+<!--
+Example:
+- express: Web server
+- prisma: Database ORM
+- zod: Schema validation
+- axios: HTTP client
+-->
+
+## Common Development Tasks
+
+### Running the Application
+```bash
+# Development mode (with hot reload)
+{{DEV_COMMAND}}
+# Examples:
+# npm run dev
+# yarn dev
+# tsx watch src/index.ts
+
+# Production mode
+{{START_COMMAND}}
+# npm start
+# node dist/index.js
+```
+
+### Building
+```bash
+# Build for production
+{{BUILD_COMMAND}}
+# Examples:
+# npm run build
+# tsc
+# webpack --mode production
+# vite build
+
+# Watch mode (rebuild on change)
+{{WATCH_COMMAND}}
+# tsc --watch
+# webpack --watch
+```
+
+### Testing
+```bash
+# Run all tests
+{{TEST_COMMAND}}
+# Examples:
+# npm test
+# jest
+# vitest run
+
+# Watch mode
+{{TEST_WATCH_COMMAND}}
+# jest --watch
+# vitest
+
+# Coverage
+{{TEST_COVERAGE_COMMAND}}
+# jest --coverage
+# vitest --coverage
+```
+
+### Linting & Formatting
+```bash
+# Lint code
+{{LINT_COMMAND}}
+# Examples:
+# npm run lint
+# eslint src/
+# biome check src/
+
+# Fix linting issues
+{{LINT_FIX_COMMAND}}
+# eslint src/ --fix
+# biome check --apply src/
+
+# Format code
+{{FORMAT_COMMAND}}
+# prettier --write src/
+# biome format --write src/
+```
+
+## Code Style & Standards
+
+### Style Guide
+- **Standard**: {{STYLE_STANDARD}} (e.g., Airbnb, Standard, Google)
+- **Formatter**: {{FORMATTER}} (Prettier, Biome)
+- **Linter**: {{LINTER}} (ESLint, Biome)
+
+### TypeScript Configuration
+{{TS_CONFIG}}
+<!--
+Example:
+- **Strict mode**: Enabled
+- **No implicit any**: Enforced
+- **Path aliases**: @/* → src/*
+- **Declaration files**: Generated in dist/types/
+-->
+
+### Naming Conventions
+- **Files**: {{FILE_NAMING}} (camelCase.ts, kebab-case.ts, PascalCase.ts)
+- **Classes**: PascalCase
+- **Functions**: camelCase
+- **Constants**: UPPER_SNAKE_CASE
+- **Interfaces**: {{INTERFACE_NAMING}} (PascalCase with 'I' prefix or without)
+
+### Code Organization
+{{CODE_ORGANIZATION}}
+<!--
+Example:
+- One component/class per file
+- Index files for barrel exports
+- Co-locate tests with source files
+- Group by feature, not by type
+-->
+
+## Environment Configuration
+
+### Environment Variables
+{{ENV_VARS}}
+<!--
+Example:
+- `NODE_ENV`: development | production | test
+- `PORT`: Server port (default: 3000)
+- `DATABASE_URL`: Database connection string
+- `API_KEY`: External API key
+- `LOG_LEVEL`: Logging verbosity
+
+Store in `.env` file (not committed)
+Use `.env.example` as template
+-->
+
+### Configuration Loading
+- **Tool**: {{CONFIG_TOOL}} (dotenv, dotenv-flow, env-var)
+- **Files**: .env, .env.local, .env.production
+- **Validation**: {{CONFIG_VALIDATION}} (zod, joi, envalid)
+
+## Database (if applicable)
+
+{{DATABASE_INFO}}
+<!--
+Example:
+- **Type**: PostgreSQL / MongoDB / MySQL / SQLite
+- **ORM**: Prisma / TypeORM / Sequelize / Mongoose
+- **Migrations**: `npm run migrate`
+- **Seed data**: `npm run seed`
+- **Connection**: Environment variable DATABASE_URL
+-->
+
+## API Documentation (if applicable)
+
+{{API_DOCS}}
+<!--
+Example:
+- **Spec**: OpenAPI 3.0 / GraphQL Schema
+- **Generator**: Swagger / GraphQL Codegen
+- **Endpoint**: /api-docs (development)
+- **Client**: Auto-generated TypeScript types
+-->
+
+## Testing Strategy
+
+### Test Framework
+- **Framework**: {{TEST_FRAMEWORK}} (Jest, Vitest, Mocha)
+- **Assertion**: {{ASSERTION_LIB}} (expect, chai, assert)
+- **Coverage target**: {{COVERAGE_TARGET}}%
+
+### Test Types
+{{TEST_TYPES}}
+<!--
+Example:
+- **Unit tests**: Pure function tests (*.test.ts)
+- **Integration tests**: API endpoint tests
+- **E2E tests**: Full user flow tests (Playwright, Cypress)
+- **Component tests**: UI component tests (React Testing Library)
+-->
+
+### Mocking
+- **Library**: {{MOCK_LIB}} (jest.mock, vi.mock, sinon)
+- **Strategy**: Mock external APIs, databases, file system
+
+## Build & Bundle
+
+### Bundler
+{{BUNDLER}}
+<!--
+Example:
+- **Tool**: Webpack / Vite / esbuild / Rollup / tsup
+- **Output**: dist/
+- **Optimization**: Minification, tree-shaking, code splitting
+- **Source maps**: Generated for debugging
+-->
+
+### Build Outputs
+{{BUILD_OUTPUTS}}
+<!--
+Example:
+- `dist/index.js`: Main entry point
+- `dist/types/`: TypeScript declaration files
+- `dist/public/`: Static assets
+-->
+
+## Performance
+
+{{PERFORMANCE_NOTES}}
+<!--
+Example:
+- Monitor with: clinic.js, 0x, node --inspect
+- Optimize: Use streams for large data, enable caching
+- Async operations: Prefer Promise.all() over sequential awaits
+- Memory: Watch for memory leaks with heapdump
+-->
+
+## Security
+
+{{SECURITY_NOTES}}
+<!--
+Example:
+- **Dependency scanning**: npm audit, Snyk
+- **Secrets**: Use environment variables, never commit
+- **Input validation**: Validate all user inputs (zod, joi)
+- **Helmet**: Security headers (if web app)
+- **CORS**: Configure properly
+- **Rate limiting**: Implement for APIs
+-->
+
+## Deployment
+
+{{DEPLOYMENT_INFO}}
+<!--
+Example:
+- **Platform**: Vercel / Netlify / Railway / Heroku / AWS / GCP
+- **Container**: Dockerfile included
+- **Build command**: npm run build
+- **Start command**: npm start
+- **Environment**: Set env vars in platform dashboard
+-->
+
+## Scripts (package.json)
+
+{{SCRIPTS_INFO}}
+<!--
+Example:
+- `dev`: Start development server
+- `build`: Build for production
+- `start`: Start production server
+- `test`: Run tests
+- `lint`: Lint code
+- `format`: Format code
+- `typecheck`: Run TypeScript compiler
+-->
+
+## Version Control
+
+- **Repository**: {{GITHUB_REPO}}
+- **User**: {{GITHUB_USER}}
+- **Branch strategy**: {{BRANCH_STRATEGY}} (e.g., main, develop + feature branches)
+- **Commit format**: {{COMMIT_FORMAT}} (Conventional Commits recommended)
+
+## CI/CD
+
+{{CI_CD_INFO}}
+<!--
+Example:
+- **Platform**: GitHub Actions / GitLab CI / CircleCI
+- **Pipeline**:
+  1. Install dependencies
+  2. Lint & type-check
+  3. Run tests
+  4. Build
+  5. Deploy (if main branch)
+- **Pre-commit**: Husky + lint-staged
+-->
+
+## Troubleshooting
+
+### Common Issues
+{{COMMON_ISSUES}}
+<!--
+Example:
+1. **Module not found**: Run `npm install`
+2. **Type errors**: Check tsconfig.json, run `npm run typecheck`
+3. **Port already in use**: Change PORT in .env
+4. **Build fails**: Clear dist/ and node_modules/, reinstall
+5. **Tests fail**: Check environment variables
+-->
+
+## Additional Resources
+
+- **Documentation**: {{DOCS_LOCATION}}
+- **API Docs**: {{API_DOCS_LOCATION}}
+- **Architecture**: {{ARCHITECTURE_DOCS}}
+- **Contributing**: {{CONTRIBUTING_GUIDE}}
+
+---
+
+**Notes for Claude Code:**
+- ALWAYS use subagents to perform parallel tasks in parallel when possible
+- Run `npm run typecheck` after TypeScript changes
+- Run tests before committing
+- Use code-reviewer agent for quality checks
+- Use test-generator agent for comprehensive test coverage
+- Check bundle size after adding dependencies
