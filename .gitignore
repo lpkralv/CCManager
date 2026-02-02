@@ -5,44 +5,46 @@ Thumbs.db
 
 # IDE
 .vscode/
+!.vscode/extensions.json
 .idea/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-*.so
-venv/
-env/
+*.swp
+*.swo
 
 # Node
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Build outputs
-build/
 dist/
-*.o
-*.elf
-*.hex
-*.bin
-.pio/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+.nyc_output/
 
 # Temporary
 *.log
 *.tmp
+tmp/
+temp/
 
-# Project-specific (users will have their own)
-src/*
-!src/README.md
-docs/*
-!docs/README.md
-background/code/*
-!background/code/PLACE_REFERENCE_CODE_HERE.md
-background/info/*
-!background/info/PLACE_REFERENCE_DOCS_HERE.md
+# Cache
+.cache/
+.turbo/
+.parcel-cache/
 
-# Local Claude settings (not the template)
+# Package manager locks (keep only npm's package-lock.json)
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Local Claude settings
 .claude/settings.local.json

@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-02T00:00:00.000Z",
+  "projects": [
+    {
+      "id": "claude-code-manager",
+      "name": "ClaudeCodeManager",
+      "path": "/Volumes/Sheridan/sandbox/ClaudeCodeManager",
+      "description": "Knowledge repository and management tools for Claude Code projects in the sandbox",
+      "projectType": "nodejs",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "typescript",
+        "framework": "express",
+        "runtime": "node",
+        "versions": {
+          "language": "ES2022",
+          "framework": "5.x",
+          "runtime": "22.x LTS"
+        },
+        "packageManager": "npm",
+        "buildSystem": "tsc",
+        "testFramework": "vitest",
+        "dependencies": {
+          "core": [
+            { "name": "zod", "version": "^3.22.0", "purpose": "Schema validation" }
+          ],
+          "dev": [
+            { "name": "typescript", "version": "^5.3.0", "purpose": "Type checking and compilation" },
+            { "name": "tsx", "version": "^4.7.0", "purpose": "TypeScript execution" },
+            { "name": "@types/node", "version": "^22.0.0", "purpose": "Node.js type definitions" }
+          ]
+        }
+      },
+      "git": {
+        "initialized": true,
+        "remoteUrl": "https://github.com/lpkralv/ClaudeCodeManager",
+        "owner": "lpkralv",
+        "repoName": "ClaudeCodeManager",
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": true,
+          "packageJson": true,
+          "tsconfigJson": true
+        },
+        "commands": {
+          "build": ["npm run build"],
+          "test": ["npm test"],
+          "run": ["npm start"],
+          "dev": ["npm run dev"],
+          "lint": ["npm run lint"]
+        },
+        "directories": {
+          "src": true,
+          "docs": true,
+          "tests": false,
+          "background": true
+        }
+      },
+      "relationships": [],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-02-02T00:00:00.000Z",
+        "lastModified": "2026-02-02T00:00:00.000Z"
+      }
+    }
+  ]
+}
