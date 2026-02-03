@@ -1,0 +1,54 @@
+{
+  "tasks": [
+    {
+      "id": "7f16c42a-9f4c-470d-b19d-43b4dd565b04",
+      "projectId": "claude-code-manager",
+      "prompt": "What is 2+2?",
+      "status": "failed",
+      "maxBudget": 0.1,
+      "createdAt": "2026-02-03T20:32:53.468Z",
+      "startedAt": "2026-02-03T20:32:53.469Z",
+      "completedAt": "2026-02-03T20:32:54.924Z",
+      "durationMs": 1455,
+      "output": "",
+      "error": "Error: When using --print, --output-format=stream-json requires --verbose\n"
+    },
+    {
+      "id": "b959cd98-37be-43de-b57b-78da00966c55",
+      "projectId": "claude-code-manager",
+      "prompt": "echo test",
+      "status": "completed",
+      "maxBudget": 0.1,
+      "createdAt": "2026-02-03T20:33:41.196Z",
+      "startedAt": "2026-02-03T20:33:41.198Z",
+      "completedAt": "2026-02-03T20:33:44.924Z",
+      "durationMs": 3726,
+      "output": "```\ntest\n```\n"
+    },
+    {
+      "id": "4aa2463c-98ce-45a9-a54b-6f400866a41d",
+      "projectId": "dadwatch-os",
+      "prompt": "commit and push",
+      "status": "completed",
+      "maxBudget": 1,
+      "createdAt": "2026-02-03T21:34:36.300Z",
+      "startedAt": "2026-02-03T21:34:36.300Z",
+      "completedAt": "2026-02-03T21:35:01.613Z",
+      "durationMs": 25313,
+      "output": "Done. Committed and pushed the architecture documentation updates to `master`:\n\n**Commit**: `a48000d` - docs: Clarify app model and OS architecture\n"
+    },
+    {
+      "id": "fee42b9b-192d-4bf3-aee4-cbf7bc0864cf",
+      "projectId": "moving-claude-code-projects",
+      "prompt": "commit and push if needed.\n",
+      "status": "completed",
+      "maxBudget": 1,
+      "createdAt": "2026-02-03T22:26:44.107Z",
+      "output": "The working tree is clean - there are no changes to commit. However, the local branch is behind the remote by 1 commit. Would you like me to pull the latest changes from the remote repository?\n",
+      "startedAt": "2026-02-03T22:26:44.118Z",
+      "completedAt": "2026-02-03T22:26:51.925Z",
+      "durationMs": 7807
+    }
+  ],
+  "lastUpdated": "2026-02-03T22:26:51.969Z"
+}

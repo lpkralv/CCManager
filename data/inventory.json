@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-02-02T00:00:00.000Z",
+  "lastUpdated": "2026-02-03T21:58:14.939Z",
   "projects": [
     {
       "id": "claude-code-manager",
@@ -23,11 +23,23 @@
         "testFramework": "vitest",
         "dependencies": {
           "core": [
-            { "name": "zod", "version": "^3.22.0", "purpose": "Schema validation" }
+            {
+              "name": "zod",
+              "version": "^3.22.0",
+              "purpose": "Schema validation"
+            }
           ],
           "dev": [
-            { "name": "typescript", "version": "^5.3.0", "purpose": "Type checking" },
-            { "name": "tsx", "version": "^4.7.0", "purpose": "TypeScript execution" }
+            {
+              "name": "typescript",
+              "version": "^5.3.0",
+              "purpose": "Type checking"
+            },
+            {
+              "name": "tsx",
+              "version": "^4.7.0",
+              "purpose": "TypeScript execution"
+            }
           ]
         }
       },
@@ -48,9 +60,15 @@
           "tsconfigJson": true
         },
         "commands": {
-          "build": ["npm run build"],
-          "test": ["npm test"],
-          "dev": ["npm run dev"]
+          "build": [
+            "npm run build"
+          ],
+          "test": [
+            "npm test"
+          ],
+          "dev": [
+            "npm run dev"
+          ]
         },
         "directories": {
           "src": true,
@@ -198,8 +216,12 @@
           "voltage": "3.3V"
         },
         "memory": {
-          "flash": { "total": 4194304 },
-          "ram": { "total": 409600 }
+          "flash": {
+            "total": 4194304
+          },
+          "ram": {
+            "total": 409600
+          }
         }
       },
       "relationships": [
@@ -234,13 +256,28 @@
         "testFramework": "vitest",
         "dependencies": {
           "core": [
-            { "name": "axios", "version": "^1.6.7" },
-            { "name": "commander", "version": "^12.0.0" },
-            { "name": "sharp", "version": "^0.33.2" },
-            { "name": "zod", "version": "^3.22.4" }
+            {
+              "name": "axios",
+              "version": "^1.6.7"
+            },
+            {
+              "name": "commander",
+              "version": "^12.0.0"
+            },
+            {
+              "name": "sharp",
+              "version": "^0.33.2"
+            },
+            {
+              "name": "zod",
+              "version": "^3.22.4"
+            }
           ],
           "dev": [
-            { "name": "typescript", "version": "^5.3.3" }
+            {
+              "name": "typescript",
+              "version": "^5.3.3"
+            }
           ]
         }
       },
@@ -261,9 +298,15 @@
           "tsconfigJson": true
         },
         "commands": {
-          "build": ["npm run build"],
-          "test": ["npm test"],
-          "dev": ["npm run dev"]
+          "build": [
+            "npm run build"
+          ],
+          "test": [
+            "npm test"
+          ],
+          "dev": [
+            "npm run dev"
+          ]
         },
         "directories": {
           "src": true,
@@ -336,13 +379,24 @@
         "testFramework": "pytest",
         "dependencies": {
           "core": [
-            { "name": "kicad-sch-api", "purpose": "KiCad schematic generation" }
+            {
+              "name": "kicad-sch-api",
+              "purpose": "KiCad schematic generation"
+            }
           ],
           "dev": [
-            { "name": "pytest" },
-            { "name": "black" },
-            { "name": "ruff" },
-            { "name": "mypy" }
+            {
+              "name": "pytest"
+            },
+            {
+              "name": "black"
+            },
+            {
+              "name": "ruff"
+            },
+            {
+              "name": "mypy"
+            }
           ]
         }
       },
@@ -430,21 +484,39 @@
         "framework": "manim",
         "runtime": "python",
         "versions": {
-          "runtime": "3.11+",
-          "framework": ">=0.18.0"
+          "framework": ">=0.18.0",
+          "runtime": "3.11+"
         },
         "packageManager": "pip",
         "testFramework": "pytest",
         "dependencies": {
           "core": [
-            { "name": "manim", "version": ">=0.18.0" },
-            { "name": "click", "version": ">=8.0.0" },
-            { "name": "anthropic", "version": ">=0.18.0" }
+            {
+              "name": "manim",
+              "version": ">=0.18.0"
+            },
+            {
+              "name": "click",
+              "version": ">=8.0.0"
+            },
+            {
+              "name": "anthropic",
+              "version": ">=0.18.0"
+            }
           ],
           "dev": [
-            { "name": "pytest", "version": ">=7.0.0" },
-            { "name": "black", "version": ">=23.0.0" },
-            { "name": "mypy", "version": ">=1.0.0" }
+            {
+              "name": "pytest",
+              "version": ">=7.0.0"
+            },
+            {
+              "name": "black",
+              "version": ">=23.0.0"
+            },
+            {
+              "name": "mypy",
+              "version": ">=1.0.0"
+            }
           ]
         }
       },
@@ -495,9 +567,18 @@
         "dependencies": {
           "core": [],
           "dev": [
-            { "name": "pytest", "version": ">=7.0.0" },
-            { "name": "black", "version": ">=23.0.0" },
-            { "name": "mypy", "version": ">=1.0.0" }
+            {
+              "name": "pytest",
+              "version": ">=7.0.0"
+            },
+            {
+              "name": "black",
+              "version": ">=23.0.0"
+            },
+            {
+              "name": "mypy",
+              "version": ">=1.0.0"
+            }
           ]
         }
       },
@@ -545,8 +626,14 @@
         "buildSystem": "platformio",
         "dependencies": {
           "core": [
-            { "name": "Adafruit SSD1306", "version": "^2.5.7" },
-            { "name": "Adafruit GFX Library", "version": "^1.11.5" }
+            {
+              "name": "Adafruit SSD1306",
+              "version": "^2.5.7"
+            },
+            {
+              "name": "Adafruit GFX Library",
+              "version": "^1.11.5"
+            }
           ],
           "dev": []
         }
@@ -580,8 +667,12 @@
           "voltage": "3.3V"
         },
         "memory": {
-          "flash": { "total": 2097152 },
-          "ram": { "total": 270336 }
+          "flash": {
+            "total": 2097152
+          },
+          "ram": {
+            "total": 270336
+          }
         }
       },
       "relationships": [],
@@ -606,10 +697,22 @@
         "testFramework": "hardware-in-loop",
         "dependencies": {
           "core": [
-            { "name": "TFT_eSPI", "purpose": "Display driver" },
-            { "name": "esp_jpeg", "purpose": "JPEG decoding" },
-            { "name": "LittleFS", "purpose": "File system" },
-            { "name": "NimBLE", "purpose": "BLE stack" }
+            {
+              "name": "TFT_eSPI",
+              "purpose": "Display driver"
+            },
+            {
+              "name": "esp_jpeg",
+              "purpose": "JPEG decoding"
+            },
+            {
+              "name": "LittleFS",
+              "purpose": "File system"
+            },
+            {
+              "name": "NimBLE",
+              "purpose": "BLE stack"
+            }
           ],
           "dev": []
         }
@@ -643,8 +746,13 @@
           "voltage": "3.3V"
         },
         "memory": {
-          "flash": { "total": 4194304, "percentUsed": 90 },
-          "ram": { "total": 409600 }
+          "flash": {
+            "total": 4194304,
+            "percentUsed": 90
+          },
+          "ram": {
+            "total": 409600
+          }
         }
       },
       "relationships": [
@@ -681,8 +789,14 @@
         "testFramework": "beep-codes",
         "dependencies": {
           "core": [
-            { "name": "AVR TinyTune", "purpose": "Audio synthesis" },
-            { "name": "picoUART", "purpose": "Software UART" }
+            {
+              "name": "AVR TinyTune",
+              "purpose": "Audio synthesis"
+            },
+            {
+              "name": "picoUART",
+              "purpose": "Software UART"
+            }
           ],
           "dev": []
         }
@@ -716,8 +830,16 @@
           "voltage": "3.3V"
         },
         "memory": {
-          "flash": { "total": 8192, "used": 6838, "percentUsed": 83.5 },
-          "ram": { "total": 512, "used": 386, "percentUsed": 75.4 }
+          "flash": {
+            "total": 8192,
+            "used": 6838,
+            "percentUsed": 83.5
+          },
+          "ram": {
+            "total": 512,
+            "used": 386,
+            "percentUsed": 75.4
+          }
         }
       },
       "relationships": [
@@ -791,7 +913,10 @@
         "testFramework": "pio-test",
         "dependencies": {
           "core": [
-            { "name": "ATTinyCore", "purpose": "Arduino core for ATtiny" }
+            {
+              "name": "ATTinyCore",
+              "purpose": "Arduino core for ATtiny"
+            }
           ],
           "dev": []
         }
@@ -825,8 +950,12 @@
           "voltage": "3.3V"
         },
         "memory": {
-          "flash": { "total": 8192 },
-          "ram": { "total": 512 }
+          "flash": {
+            "total": 8192
+          },
+          "ram": {
+            "total": 512
+          }
         },
         "gpio": {
           "total": 6,
@@ -891,6 +1020,48 @@
         "hasClaudeMd": true,
         "lastScanned": "2026-02-02T00:00:00.000Z",
         "lastModified": "2026-02-02T00:00:00.000Z"
+      }
+    },
+    {
+      "id": "soapmaking",
+      "name": "SoapMaking",
+      "path": "/Volumes/Sheridan/sandbox/SoapMaking",
+      "description": "Research the home/hobbyist soap making process. I am specifically interested in small batches of soap with shea butter and a lavender scent.\n",
+      "projectType": "utility",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "python",
+        "buildSystem": "scripts"
+      },
+      "git": {
+        "initialized": true,
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": false
+        },
+        "directories": {
+          "src": false,
+          "docs": false,
+          "tests": false,
+          "background": false
+        }
+      },
+      "relationships": [
+        {
+          "type": "part-of",
+          "targetProject": "ccstartup",
+          "description": "Instance of CCSTARTUP template"
+        }
+      ],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-02-03T21:58:14.937Z",
+        "lastModified": "2026-02-03T21:58:14.937Z"
       }
     }
   ]
