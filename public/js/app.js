@@ -86,9 +86,10 @@ function app() {
     },
 
     handleWebSocketMessage(data) {
-      console.log('WS message:', data);
+      console.log('WS message:', data.type, data);
 
       if (data.type === 'initial') {
+        console.log(`Initial state: ${data.tasks?.length || 0} active tasks`);
         this.activeTasks = data.tasks || [];
         this.updateCounts();
         return;
@@ -96,7 +97,10 @@ function app() {
 
       switch (data.type) {
         case 'task:created':
-          this.activeTasks.push(data.task);
+          console.log(`Task created: ${data.task?.id} for project ${data.task?.projectId}`);
+          // Use spread to ensure Alpine.js reactivity triggers properly
+          this.activeTasks = [...this.activeTasks, data.task];
+          console.log(`Active tasks now: ${this.activeTasks.length}`);
           break;
 
         case 'task:started':
@@ -193,10 +197,14 @@ function app() {
       if (!this.hasSelection() || !this.taskPrompt) return;
 
       this.dispatching = true;
+      const projectCount = this.selectedProjects.length;
+      console.log(`Dispatching to ${projectCount} projects:`, this.selectedProjects.map(p => p.name));
+
       try {
         // Dispatch to all selected projects in parallel
-        const dispatchPromises = this.selectedProjects.map(project =>
-          fetch('/api/tasks', {
+        const dispatchPromises = this.selectedProjects.map(project => {
+          console.log(`Creating task for project: ${project.name} (${project.id})`);
+          return fetch('/api/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -204,20 +212,29 @@ function app() {
               prompt: this.taskPrompt
             })
           }).then(async response => {
+            console.log(`Response for ${project.name}: ${response.status}`);
             if (!response.ok) {
               const error = await response.json();
               throw new Error(error.error || 'Failed to dispatch task');
             }
-            return { project: project.name, success: true };
+            const task = await response.json();
+            console.log(`Task created for ${project.name}: ${task.id}`);
+            return { project: project.name, success: true, taskId: task.id };
           }).catch(err => {
+            console.error(`Failed to create task for ${project.name}:`, err);
             return { project: project.name, success: false, error: err.message };
-          })
-        );
+          });
+        });
 
         const results = await Promise.allSettled(dispatchPromises);
+        console.log('Dispatch results:', results);
+
+        const successes = results.filter(r => r.status === 'fulfilled' && r.value?.success);
         const failures = results
-          .map(r => r.value)
+          .map(r => r.status === 'fulfilled' ? r.value : { project: 'unknown', success: false, error: r.reason?.message || 'Unknown error' })
           .filter(r => r && !r.success);
+
+        console.log(`Dispatch complete: ${successes.length} succeeded, ${failures.length} failed`);
 
         if (failures.length > 0) {
           const failedProjects = failures.map(f => `${f.project}: ${f.error}`).join('\n');
