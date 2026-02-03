@@ -113,13 +113,14 @@ function app() {
         case 'task:failed':
         case 'task:cancelled':
           this.updateTask(data.task);
-          // Move to history after a delay
+          // Move to history after a delay, then update counts again
           setTimeout(() => {
             this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
             this.taskHistory.unshift(data.task);
             if (this.taskHistory.length > 100) {
               this.taskHistory = this.taskHistory.slice(0, 100);
             }
+            this.updateCounts();
           }, 3000);
           break;
       }
