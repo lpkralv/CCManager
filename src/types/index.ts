@@ -39,3 +39,11 @@ export type {
   Project,
   ProjectInventory,
 } from "../models/project.js";
+
+export type {
+  TaskStatus,
+  Task,
+  CreateTaskInput,
+  TaskResult,
+  TaskHistory,
+} from "../models/task.js";

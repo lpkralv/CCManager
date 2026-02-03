@@ -42,3 +42,12 @@ export {
   Project,
   ProjectInventory,
 } from "./project.js";
+
+// Task
+export {
+  TaskStatus,
+  Task,
+  CreateTaskInput,
+  TaskResult,
+  TaskHistory,
+} from "./task.js";
