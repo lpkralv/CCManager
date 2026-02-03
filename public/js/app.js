@@ -16,7 +16,6 @@ function app() {
 
     // Task form
     taskPrompt: '',
-    taskBudget: 1.0,
     dispatching: false,
 
     // New project modal
@@ -24,6 +23,11 @@ function app() {
     newProjectName: '',
     newProjectDesc: '',
     creatingProject: false,
+
+    // Project details modal
+    showProjectDetails: false,
+    projectDetails: null,
+    loadingDetails: false,
 
     async init() {
       await this.loadProjects();
@@ -151,8 +155,7 @@ function app() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             projectId: this.selectedProject.id,
-            prompt: this.taskPrompt,
-            maxBudget: this.taskBudget
+            prompt: this.taskPrompt
           })
         });
 
@@ -242,6 +245,40 @@ function app() {
       if (!str) return '';
       if (str.length <= maxLength) return str;
       return str.substring(0, maxLength) + '...';
+    },
+
+    formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    },
+
+    async loadProjectDetails(projectId) {
+      this.loadingDetails = true;
+      this.showProjectDetails = true;
+      try {
+        const response = await fetch(`/api/projects/${projectId}/details`);
+        if (!response.ok) {
+          throw new Error('Failed to load project details');
+        }
+        this.projectDetails = await response.json();
+      } catch (err) {
+        console.error('Failed to load project details:', err);
+        alert('Failed to load project details: ' + err.message);
+        this.showProjectDetails = false;
+      } finally {
+        this.loadingDetails = false;
+      }
+    },
+
+    async shutdownServer() {
+      if (!confirm('Stop the server? You will need to restart it manually.')) return;
+      try {
+        await fetch('/api/shutdown', { method: 'POST' });
+        // Server will shut down, connection will be lost
+      } catch (err) {
+        // Expected - server is shutting down
+      }
     }
   };
 }

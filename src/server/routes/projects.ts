@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { getAllProjects, getProjectById } from "../../services/project-service.js";
 import { createProject, CreateProjectInput } from "../../services/project-creator.js";
+import { getGitStatus, getRecentCommits, fetchRemote } from "../../services/git-service.js";
+import { getDoWorkQueue } from "../../services/dowork-service.js";
 import { z } from "zod";
 
 const router = Router();
@@ -30,6 +32,44 @@ router.get("/:id", async (req: Request, res: Response) => {
       return;
     }
     res.json(project);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
+  }
+});
+
+// GET /api/projects/:id/details - Get detailed project info (git, commits, do-work)
+router.get("/:id/details", async (req: Request, res: Response) => {
+  try {
+    const project = await getProjectById(req.params.id ?? "");
+    if (!project) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
+    // Fetch remote to get latest ahead/behind info (non-blocking)
+    fetchRemote(project.path).catch(() => {});
+
+    // Get git status and recent commits in parallel
+    const [git, recentCommits, doWork] = await Promise.all([
+      getGitStatus(project.path).catch(() => ({
+        localBranch: "unknown",
+        remoteBranch: null,
+        isClean: true,
+        ahead: 0,
+        behind: 0,
+        uncommittedChanges: 0,
+      })),
+      getRecentCommits(project.path, 10).catch(() => []),
+      getDoWorkQueue(project.path).catch(() => null),
+    ]);
+
+    res.json({
+      project,
+      git,
+      recentCommits,
+      doWork,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     res.status(500).json({ error: message });

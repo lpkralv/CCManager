@@ -148,9 +148,32 @@ main {
   border: 1px solid var(--accent);
 }
 
+.project-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
 .project-name {
   font-weight: 500;
   font-size: 0.875rem;
+}
+
+.btn-info {
+  background: #2196f3;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-weight: bold;
+  font-size: 0.75rem;
+  border-radius: 50%;
+}
+
+.btn-info:hover:not(:disabled) {
+  background: #1976d2;
 }
 
 .project-status {
@@ -375,6 +398,12 @@ textarea {
   width: 90%;
   max-width: 500px;
   border: 1px solid var(--border);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-large {
+  max-width: 800px;
 }
 
 .modal h2 {
@@ -382,11 +411,174 @@ textarea {
   color: var(--text-primary);
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+  margin-bottom: 0;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+/* Detail Sections */
+.detail-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.detail-section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+/* Git Status */
+.git-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.git-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.git-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.git-ahead {
+  color: var(--success);
+  font-size: 0.875rem;
+}
+
+.git-behind {
+  color: var(--warning);
+  font-size: 0.875rem;
+}
+
+.git-dirty {
+  color: var(--warning);
+  font-size: 0.875rem;
+}
+
+.git-clean {
+  color: var(--success);
+  font-size: 0.875rem;
+}
+
+/* Commits List */
+.commits-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.commit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+.commit-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.commit-hash {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.commit-message {
+  flex: 1;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commit-date {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Do-Work Columns */
+.dowork-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.dowork-column h4 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.dowork-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--border);
+}
+
+.dowork-item.pending {
+  border-left-color: var(--warning);
+}
+
+.dowork-item.working {
+  border-left-color: #2196f3;
+}
+
+.dowork-item.archive {
+  border-left-color: var(--success);
+  opacity: 0.7;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.empty-state.small {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
 /* Scrollbar */

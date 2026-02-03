@@ -193,8 +193,8 @@ app.whenReady().then(async () => {
 });
 
 app.on("window-all-closed", () => {
+  stopServer(); // Always stop server when all windows close
   if (process.platform !== "darwin") {
-    stopServer();
     app.quit();
   }
 });

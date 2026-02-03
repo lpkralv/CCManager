@@ -40,6 +40,16 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Shutdown endpoint
+app.post("/api/shutdown", (_req, res) => {
+  res.json({ message: "Server shutting down..." });
+  // Give time for response to be sent
+  setTimeout(() => {
+    console.log("Shutdown requested via API");
+    process.exit(0);
+  }, 500);
+});
+
 // API routes
 app.use("/api", apiRoutes);
 

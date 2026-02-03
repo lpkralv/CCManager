@@ -22,6 +22,9 @@
       <span class="status-item">
         Pending: <strong x-text="pendingCount"></strong>
       </span>
+      <button class="btn btn-small btn-danger" @click="shutdownServer()">
+        Stop Server
+      </button>
     </div>
   </header>
 
@@ -41,8 +44,15 @@
                 :class="{ 'selected': selectedProject?.id === project.id }"
                 @click="selectProject(project)"
               >
-                <div class="project-name" x-text="project.name"></div>
-                <div class="project-status" :class="'status-' + project.status" x-text="project.status"></div>
+                <div class="project-info">
+                  <div class="project-name" x-text="project.name"></div>
+                  <div class="project-status" :class="'status-' + project.status" x-text="project.status"></div>
+                </div>
+                <button
+                  class="btn btn-small btn-info"
+                  @click.stop="loadProjectDetails(project.id)"
+                  title="View details"
+                >i</button>
               </div>
             </template>
           </div>
@@ -64,17 +74,6 @@
                 placeholder="Enter task prompt..."
                 required
               ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="budget">Max Budget ($)</label>
-              <input
-                type="number"
-                id="budget"
-                x-model.number="taskBudget"
-                min="0.10"
-                max="10.00"
-                step="0.10"
-              >
             </div>
             <button type="submit" class="btn btn-primary" :disabled="!taskPrompt || dispatching">
               <span x-show="!dispatching">Dispatch Task</span>
@@ -144,6 +143,100 @@
       </section>
     </div>
   </main>
+
+  <!-- Project Details Modal -->
+  <div class="modal-backdrop" x-show="showProjectDetails" @click.self="showProjectDetails = false">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h2 x-text="projectDetails?.project?.name"></h2>
+        <button class="btn btn-small" @click="showProjectDetails = false">X</button>
+      </div>
+
+      <div class="loading-state" x-show="loadingDetails">
+        <p>Loading project details...</p>
+      </div>
+
+      <div x-show="!loadingDetails && projectDetails">
+        <!-- Git Status Section -->
+        <section class="detail-section">
+          <h3>Git Status</h3>
+          <div class="git-status">
+            <span class="git-item">
+              <span class="git-label">Branch:</span>
+              <strong x-text="projectDetails?.git?.localBranch"></strong>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.ahead > 0">
+              <span class="git-ahead">+<span x-text="projectDetails?.git?.ahead"></span> ahead</span>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.behind > 0">
+              <span class="git-behind">-<span x-text="projectDetails?.git?.behind"></span> behind</span>
+            </span>
+            <span class="git-item" x-show="!projectDetails?.git?.isClean">
+              <span class="git-dirty"><span x-text="projectDetails?.git?.uncommittedChanges"></span> uncommitted</span>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.isClean">
+              <span class="git-clean">Clean</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- Recent Commits Section -->
+        <section class="detail-section">
+          <h3>Recent Commits</h3>
+          <div class="commits-list">
+            <template x-for="commit in projectDetails?.recentCommits" :key="commit.hash">
+              <div class="commit-item">
+                <span class="commit-hash" x-text="commit.hash.slice(0,7)"></span>
+                <span class="commit-message" x-text="truncate(commit.message, 60)"></span>
+                <span class="commit-date" x-text="formatDate(commit.date)"></span>
+              </div>
+            </template>
+            <div class="empty-state" x-show="!projectDetails?.recentCommits?.length">
+              <p>No commits found</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Do-Work Queue Section -->
+        <section class="detail-section" x-show="projectDetails?.doWork">
+          <h3>Do-Work Queue</h3>
+          <div class="dowork-columns">
+            <div class="dowork-column">
+              <h4>Pending (<span x-text="projectDetails?.doWork?.pending?.length || 0"></span>)</h4>
+              <template x-for="req in projectDetails?.doWork?.pending" :key="req.id">
+                <div class="dowork-item pending" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.pending?.length">
+                <p>None</p>
+              </div>
+            </div>
+            <div class="dowork-column">
+              <h4>Working (<span x-text="projectDetails?.doWork?.working?.length || 0"></span>)</h4>
+              <template x-for="req in projectDetails?.doWork?.working" :key="req.id">
+                <div class="dowork-item working" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.working?.length">
+                <p>None</p>
+              </div>
+            </div>
+            <div class="dowork-column">
+              <h4>Recent Archive</h4>
+              <template x-for="req in projectDetails?.doWork?.recentArchive?.slice(0,5)" :key="req.id">
+                <div class="dowork-item archive" :class="'status-' + (req.status || 'completed')" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.recentArchive?.length">
+                <p>None</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="detail-section" x-show="!projectDetails?.doWork">
+          <p class="muted">No do-work queue found for this project</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- New Project Modal -->
   <div class="modal-backdrop" x-show="showNewProject" @click.self="showNewProject = false">
