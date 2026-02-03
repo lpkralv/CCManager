@@ -41,8 +41,8 @@
             <template x-for="project in projects" :key="project.id">
               <div
                 class="project-item"
-                :class="{ 'selected': selectedProject?.id === project.id }"
-                @click="selectProject(project)"
+                :class="{ 'selected': isProjectSelected(project) }"
+                @click="handleProjectClick(project, $event)"
               >
                 <div class="project-info">
                   <div class="project-name" x-text="project.name"></div>
@@ -58,12 +58,12 @@
           </div>
         </section>
 
-        <section class="card" x-show="selectedProject">
+        <section class="card" x-show="hasSelection()">
           <h2>Dispatch Task</h2>
           <form @submit.prevent="dispatchTask()">
             <div class="form-group">
-              <label>Project</label>
-              <input type="text" :value="selectedProject?.name" disabled>
+              <label>Project<span x-show="selectedProjects.length > 1">s</span></label>
+              <input type="text" :value="getSelectedProjectNames()" disabled>
             </div>
             <div class="form-group">
               <label for="prompt">Prompt</label>

@@ -6,7 +6,8 @@ function app() {
 
     // Projects
     projects: [],
-    selectedProject: null,
+    selectedProjects: [],
+    lastSelectedIndex: null,
 
     // Tasks
     activeTasks: [],
@@ -142,34 +143,92 @@ function app() {
       this.pendingCount = this.activeTasks.filter(t => t.status === 'pending').length;
     },
 
-    selectProject(project) {
-      this.selectedProject = project;
+    handleProjectClick(project, event) {
+      const currentIndex = this.projects.findIndex(p => p.id === project.id);
+
+      if (event.shiftKey && this.lastSelectedIndex !== null) {
+        // SHIFT+click: Range selection
+        const start = Math.min(this.lastSelectedIndex, currentIndex);
+        const end = Math.max(this.lastSelectedIndex, currentIndex);
+        const rangeProjects = this.projects.slice(start, end + 1);
+        for (const p of rangeProjects) {
+          if (!this.selectedProjects.find(sp => sp.id === p.id)) {
+            this.selectedProjects.push(p);
+          }
+        }
+      } else if (event.metaKey || event.ctrlKey) {
+        // CMD/CTRL+click: Toggle selection
+        const existingIndex = this.selectedProjects.findIndex(sp => sp.id === project.id);
+        if (existingIndex !== -1) {
+          this.selectedProjects.splice(existingIndex, 1);
+        } else {
+          this.selectedProjects.push(project);
+        }
+        this.lastSelectedIndex = currentIndex;
+      } else {
+        // Plain click: Clear and select single
+        this.selectedProjects = [project];
+        this.lastSelectedIndex = currentIndex;
+      }
+    },
+
+    isProjectSelected(project) {
+      return this.selectedProjects.some(p => p.id === project.id);
+    },
+
+    getSelectedProjectNames() {
+      if (this.selectedProjects.length === 0) return '';
+      if (this.selectedProjects.length === 1) return this.selectedProjects[0].name;
+      if (this.selectedProjects.length <= 3) {
+        return this.selectedProjects.map(p => p.name).join(', ');
+      }
+      return `${this.selectedProjects.length} projects selected`;
+    },
+
+    hasSelection() {
+      return this.selectedProjects.length > 0;
     },
 
     async dispatchTask() {
-      if (!this.selectedProject || !this.taskPrompt) return;
+      if (!this.hasSelection() || !this.taskPrompt) return;
 
       this.dispatching = true;
       try {
-        const response = await fetch('/api/tasks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            projectId: this.selectedProject.id,
-            prompt: this.taskPrompt
+        // Dispatch to all selected projects in parallel
+        const dispatchPromises = this.selectedProjects.map(project =>
+          fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              projectId: project.id,
+              prompt: this.taskPrompt
+            })
+          }).then(async response => {
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || 'Failed to dispatch task');
+            }
+            return { project: project.name, success: true };
+          }).catch(err => {
+            return { project: project.name, success: false, error: err.message };
           })
-        });
+        );
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to dispatch task');
+        const results = await Promise.allSettled(dispatchPromises);
+        const failures = results
+          .map(r => r.value)
+          .filter(r => r && !r.success);
+
+        if (failures.length > 0) {
+          const failedProjects = failures.map(f => `${f.project}: ${f.error}`).join('\n');
+          alert(`Some tasks failed to dispatch:\n${failedProjects}`);
         }
 
-        // Clear form on success
+        // Clear form on success (even partial)
         this.taskPrompt = '';
       } catch (err) {
-        console.error('Failed to dispatch task:', err);
-        alert('Failed to dispatch task: ' + err.message);
+        console.error('Failed to dispatch tasks:', err);
+        alert('Failed to dispatch tasks: ' + err.message);
       } finally {
         this.dispatching = false;
       }
@@ -215,7 +274,9 @@ function app() {
         this.showNewProject = false;
         this.newProjectName = '';
         this.newProjectDesc = '';
-        this.selectProject(project);
+        // Select the newly created project
+        this.selectedProjects = [project];
+        this.lastSelectedIndex = this.projects.length - 1;
       } catch (err) {
         console.error('Failed to create project:', err);
         alert('Failed to create project: ' + err.message);
