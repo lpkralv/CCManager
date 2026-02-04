@@ -89,8 +89,23 @@ function app() {
       console.log('WS message:', data.type, data);
 
       if (data.type === 'initial') {
-        console.log(`Initial state: ${data.tasks?.length || 0} active tasks`);
-        this.activeTasks = data.tasks || [];
+        const incomingTasks = data.tasks || [];
+        console.log(`Initial state: ${incomingTasks.length} active tasks from server, ${this.activeTasks.length} already tracked`);
+
+        if (this.activeTasks.length === 0) {
+          // No existing tasks, just set directly
+          this.activeTasks = incomingTasks;
+        } else {
+          // Merge: add tasks from initial that aren't already present (by ID)
+          const existingIds = new Set(this.activeTasks.map(t => t.id));
+          const newTasks = incomingTasks.filter(t => !existingIds.has(t.id));
+          if (newTasks.length > 0) {
+            console.log(`Merging ${newTasks.length} new tasks from initial state`);
+            // Use spread for Alpine.js reactivity
+            this.activeTasks = [...this.activeTasks, ...newTasks];
+          }
+        }
+        console.log(`Active tasks after merge: ${this.activeTasks.length}`);
         this.updateCounts();
         return;
       }
