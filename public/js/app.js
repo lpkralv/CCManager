@@ -108,10 +108,13 @@ function app() {
           break;
 
         case 'task:output':
-          const task = this.activeTasks.find(t => t.id === data.taskId);
-          if (task) {
-            task.output = (task.output || '') + data.output;
-          }
+          // Use map to create new array for Alpine.js reactivity
+          this.activeTasks = this.activeTasks.map(t => {
+            if (t.id === data.taskId) {
+              return { ...t, output: (t.output || '') + data.output };
+            }
+            return t;
+          });
           break;
 
         case 'task:completed':
@@ -121,10 +124,8 @@ function app() {
           // Move to history after a delay, then update counts again
           setTimeout(() => {
             this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
-            this.taskHistory.unshift(data.task);
-            if (this.taskHistory.length > 100) {
-              this.taskHistory = this.taskHistory.slice(0, 100);
-            }
+            // Use spread for Alpine.js reactivity
+            this.taskHistory = [data.task, ...this.taskHistory].slice(0, 100);
             this.updateCounts();
           }, 3000);
           break;
@@ -134,12 +135,14 @@ function app() {
     },
 
     updateTask(updatedTask) {
-      const index = this.activeTasks.findIndex(t => t.id === updatedTask.id);
-      if (index !== -1) {
-        // Preserve output if not in update
-        const existingOutput = this.activeTasks[index].output;
-        this.activeTasks[index] = { ...updatedTask, output: updatedTask.output || existingOutput };
-      }
+      // Use map to create new array for Alpine.js reactivity
+      this.activeTasks = this.activeTasks.map(t => {
+        if (t.id === updatedTask.id) {
+          // Preserve output if not in update
+          return { ...updatedTask, output: updatedTask.output || t.output };
+        }
+        return t;
+      });
     },
 
     updateCounts() {
