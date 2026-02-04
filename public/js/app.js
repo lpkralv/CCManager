@@ -121,6 +121,10 @@ function app() {
         case 'task:failed':
         case 'task:cancelled':
           this.updateTask(data.task);
+          // Refresh project details if modal is open for this project
+          if (this.showProjectDetails && this.projectDetails?.project?.id === data.task.projectId) {
+            this.loadProjectDetails(data.task.projectId);
+          }
           // Move to history after a delay, then update counts again
           setTimeout(() => {
             this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
