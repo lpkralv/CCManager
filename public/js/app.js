@@ -35,6 +35,10 @@ function app() {
     projectDetails: null,
     loadingDetails: false,
 
+    // Task output modal
+    showTaskOutput: false,
+    selectedTaskOutput: null,
+
     // Settings
     showSettings: false,
     loadingSettings: false,
@@ -186,6 +190,12 @@ function app() {
               return { ...t, output: (t.output || '') + data.output };
             }
             return t;
+          });
+          // Auto-scroll active task output to bottom
+          this.$nextTick(() => {
+            document.querySelectorAll('.task-output').forEach(el => {
+              el.scrollTop = el.scrollHeight;
+            });
           });
           break;
 
@@ -348,6 +358,11 @@ function app() {
         console.error('Failed to cancel task:', err);
         alert('Failed to cancel task: ' + err.message);
       }
+    },
+
+    viewTaskOutput(task) {
+      this.selectedTaskOutput = task;
+      this.showTaskOutput = true;
     },
 
     async createProject() {

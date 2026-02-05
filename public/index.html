@@ -145,6 +145,11 @@
                     <span class="task-project" x-text="getProjectName(task.projectId)"></span>
                     <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
                   </div>
+                  <button
+                    class="btn btn-small btn-view-output"
+                    x-show="task.output"
+                    @click="viewTaskOutput(task)"
+                  >View Output</button>
                 </div>
                 <div class="task-prompt" x-text="truncate(task.prompt, 100)"></div>
                 <div class="task-meta">
@@ -376,6 +381,45 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Task Output Modal -->
+  <div class="modal-backdrop" x-show="showTaskOutput" @click.self="showTaskOutput = false" @keydown.escape.window="showTaskOutput = false">
+    <div class="modal modal-large task-output-modal">
+      <div class="modal-header">
+        <h2>Task Output</h2>
+        <button class="btn btn-small" @click="showTaskOutput = false">X</button>
+      </div>
+
+      <template x-if="selectedTaskOutput">
+        <div>
+          <div class="task-output-meta">
+            <span class="task-project" x-text="getProjectName(selectedTaskOutput.projectId)"></span>
+            <span class="task-status" :class="'status-' + selectedTaskOutput.status" x-text="selectedTaskOutput.status"></span>
+            <span class="task-output-duration" x-show="selectedTaskOutput.durationMs" x-text="formatDuration(selectedTaskOutput.durationMs)"></span>
+          </div>
+
+          <div class="task-output-prompt">
+            <h3>Prompt</h3>
+            <p x-text="selectedTaskOutput.prompt"></p>
+          </div>
+
+          <div class="task-output-section">
+            <h3>Output</h3>
+            <div class="task-output-content">
+              <pre x-text="selectedTaskOutput.output || 'No output captured.'"></pre>
+            </div>
+          </div>
+
+          <div class="task-output-section task-error-section" x-show="selectedTaskOutput.error">
+            <h3>Error Output</h3>
+            <div class="task-output-content task-error-content">
+              <pre x-text="selectedTaskOutput.error"></pre>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 
