@@ -18,7 +18,11 @@
     "test:coverage": "vitest --coverage",
     "start:electron": "electron .",
     "generate-icon": "node scripts/generate-icon.mjs",
-    "build:mac": "npm run generate-icon && npm run build && electron-builder --mac"
+    "build:mac": "npm run generate-icon && npm run build && electron-builder --mac",
+    "service:install": "bash scripts/launchd/setup.sh",
+    "service:uninstall": "bash scripts/launchd/teardown.sh",
+    "service:status": "launchctl list com.lpkralv.ccmanager 2>/dev/null && echo 'Running' || echo 'Not running'",
+    "service:logs": "tail -f logs/ccmanager.log"
   },
   "keywords": [
     "claude",

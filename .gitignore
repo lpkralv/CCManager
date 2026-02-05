@@ -53,5 +53,8 @@ bun.lockb
 # App settings (user-specific)
 data/settings.json
 
+# Logs
+logs/
+
 # Serena
 .serena/
