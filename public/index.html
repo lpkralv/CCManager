@@ -86,7 +86,10 @@
         <section class="card">
           <div class="card-header">
             <h2>Projects</h2>
-            <button class="btn btn-small" @click="showNewProject = true">+ New</button>
+            <div class="card-header-actions">
+              <button class="btn-refresh" @click="refreshProjects()" title="Refresh projects">&#x21bb;</button>
+              <button class="btn btn-small" @click="showNewProject = true">+ New</button>
+            </div>
           </div>
           <div class="project-list">
             <template x-for="project in projects" :key="project.id">

@@ -41,6 +41,16 @@ function app() {
         this.loadProjectsSummary(),
       ]);
       this.connectWebSocket();
+
+      // Poll for project changes every 30 seconds to reflect disk changes
+      setInterval(() => this.refreshProjects(), 30000);
+    },
+
+    async refreshProjects() {
+      await Promise.all([
+        this.loadProjects(),
+        this.loadProjectsSummary(),
+      ]);
     },
 
     async loadProjects() {
@@ -176,6 +186,10 @@ function app() {
           // Refresh project details if modal is open for this project
           if (this.showProjectDetails && this.projectDetails?.project?.id === data.task.projectId) {
             this.loadProjectDetails(data.task.projectId);
+          }
+          // Refresh projects list and summary since task completion can change git status
+          if (data.type === 'task:completed' || data.type === 'task:failed') {
+            this.refreshProjects();
           }
           // Move to history after a delay, then update counts again
           setTimeout(() => {
