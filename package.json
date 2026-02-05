@@ -1,0 +1,84 @@
+{
+  "name": "ccmanager",
+  "version": "0.1.0",
+  "description": "Knowledge repository and management tools for Claude Code projects",
+  "type": "module",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev": "tsx watch src/server/index.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage",
+    "start:electron": "electron .",
+    "generate-icon": "node scripts/generate-icon.mjs",
+    "build:mac": "npm run generate-icon && npm run build && electron-builder --mac",
+    "service:install": "bash scripts/launchd/setup.sh",
+    "service:uninstall": "bash scripts/launchd/teardown.sh",
+    "service:status": "launchctl list com.lpkralv.ccmanager 2>/dev/null && echo 'Running' || echo 'Not running'",
+    "service:logs": "tail -f logs/ccmanager.log"
+  },
+  "keywords": [
+    "claude",
+    "code",
+    "manager",
+    "inventory"
+  ],
+  "author": "lpkralv",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lpkralv/CCManager.git"
+  },
+  "homepage": "https://github.com/lpkralv/CCManager",
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0",
+    "ws": "^8.16.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.3",
+    "@types/uuid": "^9.0.7",
+    "@types/ws": "^8.5.10",
+    "@vitest/coverage-v8": "^4.0.18",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0",
+    "sharp": "^0.34.5",
+    "supertest": "^7.2.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "build": {
+    "appId": "com.lpkralv.claudecodemanager",
+    "productName": "CCManager",
+    "asar": false,
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dir",
+      "icon": "build/icon.icns"
+    },
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "public/**/*",
+      "data/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Manager</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body x-data="app()" x-init="init()">
+  <header>
+    <h1>Claude Code Manager</h1>
+    <div class="status-bar">
+      <span class="status-item">
+        <span class="dot" :class="connected ? 'connected' : 'disconnected'"></span>
+        <span x-text="connected ? 'Connected' : 'Disconnected'"></span>
+      </span>
+      <span class="status-item">
+        Running: <strong x-text="runningCount"></strong>
+      </span>
+      <span class="status-item">
+        Pending: <strong x-text="pendingCount"></strong>
+      </span>
+      <button class="btn btn-small" @click="showSummary = true; loadProjectsSummary()" title="Summary">
+        Summary
+      </button>
+      <button class="btn btn-small" @click="showSettings = true" title="Configure">
+        Configure
+      </button>
+      <button class="btn btn-small btn-danger" @click="shutdownServer()">
+        Stop Server
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- First-Run Setup Banner -->
+    <div class="setup-banner" x-show="needsSetup" x-cloak>
+      <div class="setup-banner-content">
+        <h3>Welcome to Claude Code Manager</h3>
+        <p>To get started, configure the folder where your Claude Code projects live.</p>
+        <button class="btn btn-primary" @click="showSettings = true">Configure Projects Folder</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Left Panel: Projects & New Task -->
+      <aside class="sidebar">
+        <section class="card">
+          <div class="card-header">
+            <h2>Projects</h2>
+            <div class="card-header-actions">
+              <button class="btn-refresh" @click="refreshProjects()" title="Refresh projects">&#x21bb;</button>
+              <button class="btn btn-small" @click="showNewProject = true">+ New</button>
+            </div>
+          </div>
+          <div class="project-list">
+            <template x-for="project in projects" :key="project.id">
+              <div
+                class="project-item"
+                :class="{ 'selected': isProjectSelected(project) }"
+                @click="handleProjectClick(project, $event)"
+              >
+                <div class="project-info">
+                  <div class="project-name" x-text="project.name"></div>
+                  <div class="project-status" :class="'status-' + project.status" x-text="project.status"></div>
+                </div>
+                <button
+                  class="btn btn-small btn-info"
+                  @click.stop="loadProjectDetails(project.id)"
+                  title="View details"
+                >i</button>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <section class="card" x-show="hasSelection()">
+          <h2>Dispatch Task</h2>
+          <form @submit.prevent="dispatchTask()">
+            <div class="form-group">
+              <label>Project<span x-show="selectedProjects.length > 1">s</span></label>
+              <input type="text" :value="getSelectedProjectNames()" disabled>
+            </div>
+            <div class="form-group">
+              <label for="prompt">Prompt</label>
+              <textarea
+                id="prompt"
+                x-model="taskPrompt"
+                rows="4"
+                placeholder="Enter task prompt..."
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" :disabled="!taskPrompt || dispatching">
+              <span x-show="!dispatching">Dispatch Task</span>
+              <span x-show="dispatching">Dispatching...</span>
+            </button>
+          </form>
+        </section>
+      </aside>
+
+      <!-- Center Panel: Active Tasks -->
+      <section class="main-content">
+        <div class="card">
+          <h2>Active Tasks</h2>
+          <div class="tasks-list" x-show="activeTasks.length > 0">
+            <template x-for="task in activeTasks" :key="task.id">
+              <div class="task-card" :class="'task-' + task.status">
+                <div class="task-header">
+                  <div>
+                    <span class="task-project" x-text="getProjectName(task.projectId)"></span>
+                    <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                  </div>
+                  <button
+                    class="btn btn-small btn-danger"
+                    @click="cancelTask(task.id)"
+                    x-show="task.status === 'pending' || task.status === 'running'"
+                  >Cancel</button>
+                </div>
+                <div class="task-prompt" x-text="task.prompt"></div>
+                <div class="task-output" x-show="task.status === 'running'">
+                  <pre x-text="task.output || 'Waiting for output...'"></pre>
+                </div>
+                <div class="task-meta">
+                  <span x-text="formatTime(task.createdAt)"></span>
+                  <span x-show="task.durationMs" x-text="formatDuration(task.durationMs)"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div class="empty-state" x-show="activeTasks.length === 0">
+            <p>No active tasks. Select a project and dispatch a task.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Task History</h2>
+          <div class="tasks-list" x-show="taskHistory.length > 0">
+            <template x-for="task in taskHistory.slice(0, 10)" :key="task.id">
+              <div class="task-card task-history" :class="'task-' + task.status">
+                <div class="task-header">
+                  <div>
+                    <span class="task-project" x-text="getProjectName(task.projectId)"></span>
+                    <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                  </div>
+                  <button
+                    class="btn btn-small btn-view-output"
+                    x-show="task.output"
+                    @click="viewTaskOutput(task)"
+                  >View Output</button>
+                </div>
+                <div class="task-prompt" x-text="truncate(task.prompt, 100)"></div>
+                <div class="task-meta">
+                  <span x-text="formatTime(task.completedAt || task.createdAt)"></span>
+                  <span x-show="task.durationMs" x-text="formatDuration(task.durationMs)"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div class="empty-state" x-show="taskHistory.length === 0">
+            <p>No completed tasks yet.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Project Details Modal -->
+  <div class="modal-backdrop" x-show="showProjectDetails" @click.self="showProjectDetails = false">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h2 x-text="projectDetails?.project?.name"></h2>
+        <button class="btn btn-small" @click="showProjectDetails = false">X</button>
+      </div>
+
+      <div class="loading-state" x-show="loadingDetails">
+        <p>Loading project details...</p>
+      </div>
+
+      <div x-show="!loadingDetails && projectDetails">
+        <!-- Git Status Section -->
+        <section class="detail-section">
+          <h3>Git Status</h3>
+          <div class="git-status">
+            <span class="git-item">
+              <span class="git-label">Branch:</span>
+              <strong x-text="projectDetails?.git?.localBranch"></strong>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.ahead > 0">
+              <span class="git-ahead">+<span x-text="projectDetails?.git?.ahead"></span> ahead</span>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.behind > 0">
+              <span class="git-behind">-<span x-text="projectDetails?.git?.behind"></span> behind</span>
+            </span>
+            <span class="git-item" x-show="!projectDetails?.git?.isClean">
+              <span class="git-dirty"><span x-text="projectDetails?.git?.uncommittedChanges"></span> uncommitted</span>
+            </span>
+            <span class="git-item" x-show="projectDetails?.git?.isClean">
+              <span class="git-clean">Clean</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- Recent Commits Section -->
+        <section class="detail-section">
+          <h3>Recent Commits</h3>
+          <div class="commits-list">
+            <template x-for="commit in projectDetails?.recentCommits" :key="commit.hash">
+              <div class="commit-item">
+                <span class="commit-hash" x-text="commit.hash.slice(0,7)"></span>
+                <span class="commit-message" x-text="truncate(commit.message, 60)"></span>
+                <span class="commit-date" x-text="formatDate(commit.date)"></span>
+              </div>
+            </template>
+            <div class="empty-state" x-show="!projectDetails?.recentCommits?.length">
+              <p>No commits found</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Do-Work Queue Section -->
+        <section class="detail-section" x-show="projectDetails?.doWork">
+          <h3>Do-Work Queue</h3>
+          <div class="dowork-columns">
+            <div class="dowork-column">
+              <h4>Pending (<span x-text="projectDetails?.doWork?.pending?.length || 0"></span>)</h4>
+              <template x-for="req in projectDetails?.doWork?.pending" :key="req.id">
+                <div class="dowork-item pending" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.pending?.length">
+                <p>None</p>
+              </div>
+            </div>
+            <div class="dowork-column">
+              <h4>Working (<span x-text="projectDetails?.doWork?.working?.length || 0"></span>)</h4>
+              <template x-for="req in projectDetails?.doWork?.working" :key="req.id">
+                <div class="dowork-item working" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.working?.length">
+                <p>None</p>
+              </div>
+            </div>
+            <div class="dowork-column">
+              <h4>Recent Archive</h4>
+              <template x-for="req in projectDetails?.doWork?.recentArchive?.slice(0,5)" :key="req.id">
+                <div class="dowork-item archive" :class="'status-' + (req.status || 'completed')" x-text="req.title"></div>
+              </template>
+              <div class="empty-state small" x-show="!projectDetails?.doWork?.recentArchive?.length">
+                <p>None</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="detail-section" x-show="!projectDetails?.doWork">
+          <p class="muted">No do-work queue found for this project</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Project Modal -->
+  <div class="modal-backdrop" x-show="showNewProject" @click.self="showNewProject = false">
+    <div class="modal">
+      <h2>Create New Project</h2>
+      <form @submit.prevent="createProject()">
+        <div class="form-group">
+          <label for="projectName">Project Name</label>
+          <input
+            type="text"
+            id="projectName"
+            x-model="newProjectName"
+            placeholder="My New Project"
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="projectDesc">Description</label>
+          <textarea
+            id="projectDesc"
+            x-model="newProjectDesc"
+            rows="3"
+            placeholder="A brief description of what this project does"
+            required
+          ></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" @click="showNewProject = false">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="creatingProject">
+            <span x-show="!creatingProject">Create Project</span>
+            <span x-show="creatingProject">Creating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Projects Summary Modal -->
+  <div class="modal-backdrop" x-show="showSummary" @click.self="showSummary = false">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h2>Projects Summary</h2>
+        <button class="btn btn-small" @click="showSummary = false">X</button>
+      </div>
+      <div class="loading-state" x-show="loadingSummary">
+        <p>Loading projects summary...</p>
+      </div>
+      <div class="summary-table-wrapper" x-show="!loadingSummary && projectsSummary.length > 0">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Status</th>
+              <th>Last Change</th>
+              <th>Git Branch</th>
+              <th>Git Status</th>
+              <th>Last Commit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="p in projectsSummary" :key="p.id">
+              <tr class="summary-row" @click="loadProjectDetails(p.id); showSummary = false">
+                <td class="summary-name" x-text="p.name"></td>
+                <td>
+                  <span class="project-status" :class="'status-' + p.status" x-text="p.status"></span>
+                </td>
+                <td class="summary-date" :title="formatDate(p.lastModified)" x-text="formatRelativeDate(p.lastModified)"></td>
+                <td>
+                  <code class="summary-branch" x-text="p.gitBranch"></code>
+                </td>
+                <td>
+                  <span x-show="p.isClean" class="git-clean">Clean</span>
+                  <span x-show="!p.isClean" class="git-dirty" x-text="p.uncommittedChanges + ' changed'"></span>
+                  <span x-show="p.ahead > 0" class="git-ahead summary-git-detail">+<span x-text="p.ahead"></span></span>
+                  <span x-show="p.behind > 0" class="git-behind summary-git-detail">-<span x-text="p.behind"></span></span>
+                </td>
+                <td class="summary-commit">
+                  <span class="commit-message-text" x-text="truncate(p.lastCommitMessage, 50)"></span>
+                  <span class="commit-date-text" x-show="p.lastCommitDate" x-text="formatRelativeDate(p.lastCommitDate)"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="empty-state" x-show="!loadingSummary && projectsSummary.length === 0">
+        <p>No projects found. Add a project to get started.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" x-show="showSettings" @click.self="showSettings = false">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="btn btn-small" @click="showSettings = false">X</button>
+      </div>
+      <form @submit.prevent="saveSettings()">
+        <div class="form-group">
+          <label for="settingsProjectsRoot">Projects Root Folder</label>
+          <input
+            type="text"
+            id="settingsProjectsRoot"
+            x-model="settingsForm.projectsRoot"
+            placeholder="/Users/you/projects"
+            required
+          >
+          <p class="form-hint">The folder containing your Claude Code project folders.</p>
+          <p class="form-hint" x-show="settingsSource === 'env'">
+            Currently overridden by the <code>PROJECTS_ROOT</code> environment variable.
+          </p>
+          <p class="form-hint" x-show="settingsSource === 'settings' && settingsForm.projectsRoot">
+            Currently reading projects from: <code x-text="settingsForm.projectsRoot"></code>
+          </p>
+          <p class="form-hint" x-show="settingsSource === 'none' && inferredProjectsRoot">
+            Detected from existing projects: <code x-text="inferredProjectsRoot"></code>. Save to make this permanent.
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" @click="showSettings = false">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="savingSettings || !settingsForm.projectsRoot">
+            <span x-show="!savingSettings">Save Settings</span>
+            <span x-show="savingSettings">Saving...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Task Output Modal -->
+  <div class="modal-backdrop" x-show="showTaskOutput" @click.self="showTaskOutput = false" @keydown.escape.window="showTaskOutput = false">
+    <div class="modal modal-large task-output-modal">
+      <div class="modal-header">
+        <h2>Task Output</h2>
+        <button class="btn btn-small" @click="showTaskOutput = false">X</button>
+      </div>
+
+      <template x-if="selectedTaskOutput">
+        <div>
+          <div class="task-output-meta">
+            <span class="task-project" x-text="getProjectName(selectedTaskOutput.projectId)"></span>
+            <span class="task-status" :class="'status-' + selectedTaskOutput.status" x-text="selectedTaskOutput.status"></span>
+            <span class="task-output-duration" x-show="selectedTaskOutput.durationMs" x-text="formatDuration(selectedTaskOutput.durationMs)"></span>
+          </div>
+
+          <div class="task-output-prompt">
+            <h3>Prompt</h3>
+            <p x-text="selectedTaskOutput.prompt"></p>
+          </div>
+
+          <div class="task-output-section">
+            <h3>Output</h3>
+            <div class="task-output-content">
+              <pre x-text="selectedTaskOutput.output || 'No output captured.'"></pre>
+            </div>
+          </div>
+
+          <div class="task-output-section task-error-section" x-show="selectedTaskOutput.error">
+            <h3>Error Output</h3>
+            <div class="task-output-content task-error-content">
+              <pre x-text="selectedTaskOutput.error"></pre>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
