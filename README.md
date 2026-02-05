@@ -1,3 +1,6 @@
+
+<img width="680" height="455" alt="Screenshot 2026-02-05 at 5 44 35 PM" src="https://github.com/user-attachments/assets/3b018187-ee97-4009-ab77-f7810b07240a" />
+
 # CCManager
 
 A web dashboard for managing multiple [Claude Code](https://docs.anthropic.com/en/docs/claude-code) projects from a single interface.
@@ -11,7 +14,7 @@ A web dashboard for managing multiple [Claude Code](https://docs.anthropic.com/e
 - **Task History** -- Browse completed tasks with full output logs
 - **Project Summary** -- Dashboard overview of all managed projects
 - **Settings UI** -- Configure the projects root directory and other options from the browser
-- **Electron App** -- Optional native macOS desktop wrapper
+- **Electron App** -- Optional **native macOS desktop** wrapper
 - **launchd Service** -- Auto-start the server at login on macOS
 
 ## Prerequisites
