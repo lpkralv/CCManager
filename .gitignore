@@ -18,6 +18,7 @@ yarn-error.log*
 
 # Build outputs
 dist/
+dist-electron/
 build/
 *.tsbuildinfo
 
@@ -48,3 +49,6 @@ bun.lockb
 
 # Local Claude settings
 .claude/settings.local.json
+
+# Serena
+.serena/
