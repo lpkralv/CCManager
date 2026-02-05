@@ -19,6 +19,10 @@ function app() {
     taskPrompt: '',
     dispatching: false,
 
+    // Projects summary
+    projectsSummary: [],
+    loadingSummary: false,
+
     // New project modal
     showNewProject: false,
     newProjectName: '',
@@ -31,8 +35,11 @@ function app() {
     loadingDetails: false,
 
     async init() {
-      await this.loadProjects();
-      await this.loadTaskHistory();
+      await Promise.all([
+        this.loadProjects(),
+        this.loadTaskHistory(),
+        this.loadProjectsSummary(),
+      ]);
       this.connectWebSocket();
     },
 
@@ -55,6 +62,36 @@ function app() {
       } catch (err) {
         console.error('Failed to load task history:', err);
       }
+    },
+
+    async loadProjectsSummary() {
+      this.loadingSummary = true;
+      try {
+        const response = await fetch('/api/projects/summary');
+        this.projectsSummary = await response.json();
+      } catch (err) {
+        console.error('Failed to load projects summary:', err);
+      } finally {
+        this.loadingSummary = false;
+      }
+    },
+
+    formatRelativeDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+
+      if (diffSec < 60) return 'just now';
+      if (diffMin < 60) return `${diffMin}m ago`;
+      if (diffHr < 24) return `${diffHr}h ago`;
+      if (diffDay < 7) return `${diffDay}d ago`;
+      if (diffDay < 30) return `${Math.floor(diffDay / 7)}w ago`;
+      return date.toLocaleDateString();
     },
 
     connectWebSocket() {

@@ -601,6 +601,96 @@ textarea {
   background: var(--text-secondary);
 }
 
+/* Summary Table */
+.summary-container {
+  max-width: 1600px;
+  margin: 0 auto 1.5rem auto;
+  padding: 0;
+}
+
+.summary-card {
+  width: 100%;
+}
+
+.summary-table-wrapper {
+  overflow-x: auto;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.summary-table thead th {
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.summary-table tbody td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid rgba(45, 74, 106, 0.4);
+  vertical-align: middle;
+}
+
+.summary-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.summary-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.summary-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.summary-branch {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.75rem;
+  background: var(--bg-secondary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+.summary-date {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.summary-git-detail {
+  margin-left: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.summary-commit {
+  max-width: 300px;
+}
+
+.commit-message-text {
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+}
+
+.commit-date-text {
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .container {
@@ -609,5 +699,18 @@ textarea {
 
   .project-list {
     max-height: 200px;
+  }
+
+  .summary-table {
+    font-size: 0.75rem;
+  }
+
+  .summary-table thead th,
+  .summary-table tbody td {
+    padding: 0.5rem;
+  }
+
+  .summary-commit {
+    max-width: 180px;
   }
 }

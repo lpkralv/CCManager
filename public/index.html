@@ -29,6 +29,57 @@
   </header>
 
   <main>
+    <!-- Projects Status Summary -->
+    <div class="summary-container">
+      <section class="card summary-card">
+        <h2>Projects Status</h2>
+        <div class="loading-state" x-show="loadingSummary">
+          <p>Loading projects summary...</p>
+        </div>
+        <div class="summary-table-wrapper" x-show="!loadingSummary && projectsSummary.length > 0">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Last Change</th>
+                <th>Git Branch</th>
+                <th>Git Status</th>
+                <th>Last Commit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="p in projectsSummary" :key="p.id">
+                <tr class="summary-row" @click="loadProjectDetails(p.id)">
+                  <td class="summary-name" x-text="p.name"></td>
+                  <td>
+                    <span class="project-status" :class="'status-' + p.status" x-text="p.status"></span>
+                  </td>
+                  <td class="summary-date" :title="formatDate(p.lastModified)" x-text="formatRelativeDate(p.lastModified)"></td>
+                  <td>
+                    <code class="summary-branch" x-text="p.gitBranch"></code>
+                  </td>
+                  <td>
+                    <span x-show="p.isClean" class="git-clean">Clean</span>
+                    <span x-show="!p.isClean" class="git-dirty" x-text="p.uncommittedChanges + ' changed'"></span>
+                    <span x-show="p.ahead > 0" class="git-ahead summary-git-detail">+<span x-text="p.ahead"></span></span>
+                    <span x-show="p.behind > 0" class="git-behind summary-git-detail">-<span x-text="p.behind"></span></span>
+                  </td>
+                  <td class="summary-commit">
+                    <span class="commit-message-text" x-text="truncate(p.lastCommitMessage, 50)"></span>
+                    <span class="commit-date-text" x-show="p.lastCommitDate" x-text="formatRelativeDate(p.lastCommitDate)"></span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty-state" x-show="!loadingSummary && projectsSummary.length === 0">
+          <p>No projects found. Add a project to get started.</p>
+        </div>
+      </section>
+    </div>
+
     <div class="container">
       <!-- Left Panel: Projects & New Task -->
       <aside class="sidebar">

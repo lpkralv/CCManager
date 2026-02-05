@@ -23,6 +23,54 @@ router.get("/", async (_req: Request, res: Response) => {
   }
 });
 
+// GET /api/projects/summary - Get all projects with git status and latest commit
+router.get("/summary", async (_req: Request, res: Response) => {
+  try {
+    const projects = await getAllProjects();
+
+    const summaries = await Promise.all(
+      projects.map(async (project) => {
+        // Fire fetch remote non-blocking
+        fetchRemote(project.path).catch(() => {});
+
+        // Get git status and latest commit in parallel
+        const [git, commits] = await Promise.all([
+          getGitStatus(project.path).catch(() => ({
+            localBranch: "unknown",
+            remoteBranch: null,
+            isClean: true,
+            ahead: 0,
+            behind: 0,
+            uncommittedChanges: 0,
+          })),
+          getRecentCommits(project.path, 1).catch(() => []),
+        ]);
+
+        const latestCommit = commits[0];
+
+        return {
+          id: project.id,
+          name: project.name,
+          status: project.status,
+          lastModified: project.metadata.lastModified,
+          gitBranch: git.localBranch,
+          isClean: git.isClean,
+          ahead: git.ahead,
+          behind: git.behind,
+          uncommittedChanges: git.uncommittedChanges,
+          lastCommitMessage: latestCommit?.message ?? "",
+          lastCommitDate: latestCommit?.date ?? "",
+        };
+      })
+    );
+
+    res.json(summaries);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
+  }
+});
+
 // GET /api/projects/:id - Get single project
 router.get("/:id", async (req: Request, res: Response) => {
   try {
