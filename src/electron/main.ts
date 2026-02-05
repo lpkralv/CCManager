@@ -17,7 +17,7 @@ function createWindow(): void {
     height: 900,
     minWidth: 900,
     minHeight: 600,
-    title: "Claude Code Manager",
+    title: "CCManager",
     backgroundColor: "#1a1a2e",
     titleBarStyle: "hiddenInset",
     webPreferences: {
@@ -78,7 +78,7 @@ function stopServer(): void {
 function createMenu(): void {
   const template: Electron.MenuItemConstructorOptions[] = [
     {
-      label: "Claude Code Manager",
+      label: "CCManager",
       submenu: [
         { role: "about" },
         { type: "separator" },

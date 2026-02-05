@@ -49,7 +49,7 @@
   },
   "build": {
     "appId": "com.lpkralv.claudecodemanager",
-    "productName": "ClaudeCodeManager",
+    "productName": "CCManager",
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": "dir"
