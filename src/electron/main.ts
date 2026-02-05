@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, dialog, Menu } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawn, ChildProcess } from "child_process";
@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: ChildProcess | null = null;
+let appInitiatedShutdown = false;
 
 const PORT = process.env.PORT ?? 3001;
 
@@ -65,11 +66,29 @@ function startServer(): void {
 
   serverProcess.on("exit", (code, signal) => {
     console.log(`Server exited with code ${code} and signal ${signal}`);
+    serverProcess = null;
+
+    // If the app initiated the shutdown (e.g. window closed, Cmd+Q),
+    // don't do anything — the app is already quitting.
+    if (appInitiatedShutdown) {
+      return;
+    }
+
+    // The server exited on its own (e.g. user clicked "Stop Server" in the dashboard).
+    // Quit the Electron app so we don't leave a dead window open.
+    if (code !== 0 && code !== null) {
+      dialog.showErrorBox(
+        "Server Error",
+        `The server process exited unexpectedly (code ${code}). The application will now close.`,
+      );
+    }
+    app.quit();
   });
 }
 
 function stopServer(): void {
   if (serverProcess && !serverProcess.killed) {
+    appInitiatedShutdown = true;
     serverProcess.kill("SIGTERM");
     serverProcess = null;
   }
