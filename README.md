@@ -3,7 +3,7 @@
 
 # CCManager
 
-A web dashboard for managing multiple [Claude Code](https://docs.anthropic.com/en/docs/claude-code) projects from a single interface.
+A web dashboard or MacOS app for managing multiple [Claude Code](https://docs.anthropic.com/en/docs/claude-code) projects from a single interface.
 
 ## Features
 
