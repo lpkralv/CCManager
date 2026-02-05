@@ -22,6 +22,9 @@
       <span class="status-item">
         Pending: <strong x-text="pendingCount"></strong>
       </span>
+      <button class="btn btn-small" @click="showSettings = true" title="Settings">
+        Settings
+      </button>
       <button class="btn btn-small btn-danger" @click="shutdownServer()">
         Stop Server
       </button>
@@ -29,6 +32,15 @@
   </header>
 
   <main>
+    <!-- First-Run Setup Banner -->
+    <div class="setup-banner" x-show="needsSetup" x-cloak>
+      <div class="setup-banner-content">
+        <h3>Welcome to Claude Code Manager</h3>
+        <p>To get started, configure the folder where your Claude Code projects live.</p>
+        <button class="btn btn-primary" @click="showSettings = true">Configure Projects Folder</button>
+      </div>
+    </div>
+
     <!-- Projects Status Summary -->
     <div class="summary-container">
       <section class="card summary-card">
@@ -322,6 +334,39 @@
           <button type="submit" class="btn btn-primary" :disabled="creatingProject">
             <span x-show="!creatingProject">Create Project</span>
             <span x-show="creatingProject">Creating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" x-show="showSettings" @click.self="showSettings = false">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="btn btn-small" @click="showSettings = false">X</button>
+      </div>
+      <form @submit.prevent="saveSettings()">
+        <div class="form-group">
+          <label for="settingsProjectsRoot">Projects Root Folder</label>
+          <input
+            type="text"
+            id="settingsProjectsRoot"
+            x-model="settingsForm.projectsRoot"
+            placeholder="/Users/you/projects"
+            required
+          >
+          <p class="form-hint">The folder containing your Claude Code project folders.</p>
+          <p class="form-hint" x-show="settingsSource === 'env'">
+            Currently overridden by the <code>PROJECTS_ROOT</code> environment variable.
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" @click="showSettings = false">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="savingSettings || !settingsForm.projectsRoot">
+            <span x-show="!savingSettings">Save Settings</span>
+            <span x-show="savingSettings">Saving...</span>
           </button>
         </div>
       </form>

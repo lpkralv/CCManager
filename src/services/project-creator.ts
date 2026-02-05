@@ -4,11 +4,9 @@ import path from "path";
 import { promisify } from "util";
 import { Project } from "../models/project.js";
 import { addProject } from "./project-service.js";
+import { getProjectsRoot } from "./settings-service.js";
 
 const execAsync = promisify(exec);
-
-const SANDBOX_ROOT = "/Volumes/Sheridan/sandbox";
-const CCSTARTUP_PATH = path.join(SANDBOX_ROOT, "CCSTARTUP");
 
 export interface CreateProjectInput {
   name: string;
@@ -185,8 +183,17 @@ async function runClaudeInit(
 }
 
 export async function createProject(input: CreateProjectInput): Promise<CreateProjectResult> {
+  const projectsRoot = await getProjectsRoot();
+  if (!projectsRoot) {
+    return {
+      success: false,
+      error: "Projects root directory is not configured. Please set it in Settings.",
+    };
+  }
+
   const projectId = slugify(input.name);
-  const projectPath = path.join(SANDBOX_ROOT, input.name);
+  const projectPath = path.join(projectsRoot, input.name);
+  const ccstartupPath = path.join(projectsRoot, "CCSTARTUP");
 
   // Check if project already exists
   if (await directoryExists(projectPath)) {
@@ -194,13 +201,13 @@ export async function createProject(input: CreateProjectInput): Promise<CreatePr
   }
 
   // Check if CCSTARTUP exists
-  if (!(await directoryExists(CCSTARTUP_PATH))) {
-    return { success: false, error: `CCSTARTUP template not found at: ${CCSTARTUP_PATH}` };
+  if (!(await directoryExists(ccstartupPath))) {
+    return { success: false, error: `CCSTARTUP template not found at: ${ccstartupPath}` };
   }
 
   try {
     // Clone CCSTARTUP to new project directory
-    await cp(CCSTARTUP_PATH, projectPath, { recursive: true });
+    await cp(ccstartupPath, projectPath, { recursive: true });
 
     // Write project info file with description
     await writeProjectInfo(projectPath, input.name, input.description);

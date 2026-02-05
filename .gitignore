@@ -50,5 +50,8 @@ bun.lockb
 # Local Claude settings
 .claude/settings.local.json
 
+# App settings (user-specific)
+data/settings.json
+
 # Serena
 .serena/

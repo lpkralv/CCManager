@@ -34,11 +34,20 @@ function app() {
     projectDetails: null,
     loadingDetails: false,
 
+    // Settings
+    showSettings: false,
+    loadingSettings: false,
+    savingSettings: false,
+    needsSetup: false,
+    settingsForm: { projectsRoot: '' },
+    settingsSource: 'none',
+
     async init() {
       await Promise.all([
         this.loadProjects(),
         this.loadTaskHistory(),
         this.loadProjectsSummary(),
+        this.loadSettings(),
       ]);
       this.connectWebSocket();
 
@@ -420,6 +429,54 @@ function app() {
         this.showProjectDetails = false;
       } finally {
         this.loadingDetails = false;
+      }
+    },
+
+    async loadSettings() {
+      this.loadingSettings = true;
+      try {
+        const response = await fetch('/api/settings');
+        const data = await response.json();
+        this.settingsForm.projectsRoot = data.effectiveProjectsRoot || data.settings?.projectsRoot || '';
+        this.settingsSource = data.projectsRootSource || 'none';
+        this.needsSetup = data.projectsRootSource === 'none';
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+      } finally {
+        this.loadingSettings = false;
+      }
+    },
+
+    async saveSettings() {
+      if (!this.settingsForm.projectsRoot) return;
+
+      this.savingSettings = true;
+      try {
+        const response = await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectsRoot: this.settingsForm.projectsRoot
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to save settings');
+        }
+
+        const data = await response.json();
+        this.settingsSource = data.projectsRootSource || 'settings';
+        this.needsSetup = false;
+        this.showSettings = false;
+
+        // Reload projects since the root may have changed
+        await this.refreshProjects();
+      } catch (err) {
+        console.error('Failed to save settings:', err);
+        alert('Failed to save settings: ' + err.message);
+      } finally {
+        this.savingSettings = false;
       }
     },
 
