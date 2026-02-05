@@ -7,6 +7,7 @@ vi.mock("../../services/settings-service.js", () => ({
   saveSettings: vi.fn(),
   getProjectsRoot: vi.fn(),
   getProjectsRootSource: vi.fn(),
+  inferProjectsRoot: vi.fn(),
 }));
 
 // Mock fs/promises (used by settings route for access check)
@@ -22,6 +23,7 @@ import {
   saveSettings,
   getProjectsRoot,
   getProjectsRootSource,
+  inferProjectsRoot,
 } from "../../services/settings-service.js";
 import { access } from "fs/promises";
 import { createApp } from "../app.js";
@@ -30,6 +32,7 @@ const mockLoadSettings = vi.mocked(loadSettings);
 const mockSaveSettings = vi.mocked(saveSettings);
 const mockGetProjectsRoot = vi.mocked(getProjectsRoot);
 const mockGetProjectsRootSource = vi.mocked(getProjectsRootSource);
+const mockInferProjectsRoot = vi.mocked(inferProjectsRoot);
 const mockAccess = vi.mocked(access);
 
 const app = createApp();
@@ -52,19 +55,36 @@ describe("settings routes", () => {
         settings: { projectsRoot: "/my/path" },
         effectiveProjectsRoot: "/my/path",
         projectsRootSource: "settings",
+        inferredProjectsRoot: null,
       });
     });
 
-    it("should return null for effectiveProjectsRoot when not configured", async () => {
+    it("should return null for effectiveProjectsRoot when not configured and no projects", async () => {
       mockLoadSettings.mockResolvedValue({});
       mockGetProjectsRoot.mockResolvedValue(undefined);
       mockGetProjectsRootSource.mockResolvedValue("none");
+      mockInferProjectsRoot.mockResolvedValue(undefined);
 
       const res = await request(app).get("/api/settings");
 
       expect(res.status).toBe(200);
       expect(res.body.effectiveProjectsRoot).toBeNull();
       expect(res.body.projectsRootSource).toBe("none");
+      expect(res.body.inferredProjectsRoot).toBeNull();
+    });
+
+    it("should return inferredProjectsRoot when source is none but projects exist", async () => {
+      mockLoadSettings.mockResolvedValue({});
+      mockGetProjectsRoot.mockResolvedValue(undefined);
+      mockGetProjectsRootSource.mockResolvedValue("none");
+      mockInferProjectsRoot.mockResolvedValue("/inferred/path");
+
+      const res = await request(app).get("/api/settings");
+
+      expect(res.status).toBe(200);
+      expect(res.body.effectiveProjectsRoot).toBeNull();
+      expect(res.body.projectsRootSource).toBe("none");
+      expect(res.body.inferredProjectsRoot).toBe("/inferred/path");
     });
 
     it("should return 500 when loadSettings throws", async () => {

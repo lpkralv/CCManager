@@ -372,6 +372,12 @@
           <p class="form-hint" x-show="settingsSource === 'env'">
             Currently overridden by the <code>PROJECTS_ROOT</code> environment variable.
           </p>
+          <p class="form-hint" x-show="settingsSource === 'settings' && settingsForm.projectsRoot">
+            Currently reading projects from: <code x-text="settingsForm.projectsRoot"></code>
+          </p>
+          <p class="form-hint" x-show="settingsSource === 'none' && inferredProjectsRoot">
+            Detected from existing projects: <code x-text="inferredProjectsRoot"></code>. Save to make this permanent.
+          </p>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn" @click="showSettings = false">Cancel</button>

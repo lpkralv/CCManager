@@ -5,6 +5,7 @@ import {
   saveSettings,
   getProjectsRoot,
   getProjectsRootSource,
+  inferProjectsRoot,
   AppSettings,
 } from "../../services/settings-service.js";
 import { z } from "zod";
@@ -22,10 +23,17 @@ router.get("/", async (_req: Request, res: Response) => {
     const effectiveProjectsRoot = await getProjectsRoot();
     const projectsRootSource = await getProjectsRootSource();
 
+    // When no explicit config exists, try to infer root from existing projects
+    let inferredRoot: string | undefined;
+    if (projectsRootSource === "none") {
+      inferredRoot = await inferProjectsRoot();
+    }
+
     res.json({
       settings,
       effectiveProjectsRoot: effectiveProjectsRoot || null,
       projectsRootSource,
+      inferredProjectsRoot: inferredRoot || null,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

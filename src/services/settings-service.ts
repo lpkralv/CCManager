@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { z } from "zod";
+import { getAllProjects } from "./project-service.js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const SETTINGS_PATH = path.join(DATA_DIR, "settings.json");
@@ -63,4 +64,35 @@ export async function getProjectsRootSource(): Promise<ProjectsRootSource> {
     return "settings";
   }
   return "none";
+}
+
+export async function inferProjectsRoot(): Promise<string | undefined> {
+  try {
+    const projects = await getAllProjects();
+    if (projects.length === 0) {
+      return undefined;
+    }
+    // Compute the common parent directory of all project paths
+    const dirs = projects.map((p) => path.dirname(p.path));
+    if (dirs.length === 1) {
+      return dirs[0];
+    }
+    // Find common prefix by comparing path segments
+    const splitDirs = dirs.map((d) => d.split(path.sep));
+    const minLen = Math.min(...splitDirs.map((s) => s.length));
+    const commonParts: string[] = [];
+    for (let i = 0; i < minLen; i++) {
+      const segment = splitDirs[0]![i];
+      if (splitDirs.every((s) => s[i] === segment)) {
+        commonParts.push(segment!);
+      } else {
+        break;
+      }
+    }
+    const commonDir = commonParts.join(path.sep);
+    return commonDir || undefined;
+  } catch {
+    // Inventory file may not exist
+    return undefined;
+  }
 }

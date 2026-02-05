@@ -46,6 +46,7 @@ function app() {
     needsSetup: false,
     settingsForm: { projectsRoot: '' },
     settingsSource: 'none',
+    inferredProjectsRoot: null,
 
     async init() {
       await Promise.all([
@@ -53,10 +54,25 @@ function app() {
         this.loadTaskHistory(),
         this.loadSettings(),
       ]);
+      // Recalculate needsSetup after both settings and projects are loaded
+      this.recalcNeedsSetup();
       this.connectWebSocket();
 
       // Poll for project changes every 30 seconds to reflect disk changes
       setInterval(() => this.refreshProjects(), 30000);
+    },
+
+    recalcNeedsSetup() {
+      if (this.settingsSource !== 'none') {
+        // Explicitly configured via settings file or env var
+        this.needsSetup = false;
+      } else if (this.inferredProjectsRoot || this.projects.length > 0) {
+        // Not explicitly configured, but projects exist (inferred root available)
+        this.needsSetup = false;
+      } else {
+        // Truly unconfigured: no settings, no projects
+        this.needsSetup = true;
+      }
     },
 
     async refreshProjects() {
@@ -453,9 +469,11 @@ function app() {
       try {
         const response = await fetch('/api/settings');
         const data = await response.json();
-        this.settingsForm.projectsRoot = data.effectiveProjectsRoot || data.settings?.projectsRoot || '';
+        this.inferredProjectsRoot = data.inferredProjectsRoot || null;
+        this.settingsForm.projectsRoot = data.effectiveProjectsRoot || data.settings?.projectsRoot || data.inferredProjectsRoot || '';
         this.settingsSource = data.projectsRootSource || 'none';
-        this.needsSetup = data.projectsRootSource === 'none';
+        // Initial needsSetup based on settings alone; recalcNeedsSetup() in init() refines this
+        this.needsSetup = data.projectsRootSource === 'none' && !data.inferredProjectsRoot;
       } catch (err) {
         console.error('Failed to load settings:', err);
       } finally {
