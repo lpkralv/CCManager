@@ -10,7 +10,7 @@
 </head>
 <body x-data="app()" x-init="init()">
   <header>
-    <h1>Claude Code Manager</h1>
+    <h1>Claude Code Manager <span class="version-badge" x-text="appVersion ? 'v' + appVersion : ''"></span></h1>
     <div class="status-bar">
       <span class="status-item">
         <span class="dot" :class="connected ? 'connected' : 'disconnected'"></span>

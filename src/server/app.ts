@@ -32,6 +32,18 @@ export function createApp(): express.Express {
     });
   });
 
+  // Version endpoint — reads from package.json (single source of truth)
+  app.get("/api/version", async (_req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const pkgPath = path.join(__dirname, "../../package.json");
+      const pkg = JSON.parse(await fs.readFile(pkgPath, "utf-8"));
+      res.json({ version: pkg.version, name: pkg.name });
+    } catch {
+      res.status(500).json({ error: "Could not read version" });
+    }
+  });
+
   // Shutdown endpoint
   app.post("/api/shutdown", (_req, res) => {
     res.json({ message: "Server shutting down..." });

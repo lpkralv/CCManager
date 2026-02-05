@@ -464,11 +464,47 @@
       "status": "completed",
       "maxBudget": 1,
       "createdAt": "2026-02-05T19:30:46.932Z",
-      "output": "\n\nThe git status shows 4 untracked files/directories:\n\n1. **`.mcp.json`** - MCP (Model Context Protocol) server configuration\n2. **`.serena/`** - Serena plugin configuration directory\n3. **`.vscode/`** - VS Code settings directory\n4. **`test.txt`** - A test text file\n\nAll four are untracked (shown with `??`), meaning they exist in the working directory but haven't been added to git yet. These appear to be local development/tooling configuration files rather than project source code.\n",
       "startedAt": "2026-02-05T19:30:46.933Z",
       "completedAt": "2026-02-05T19:30:56.668Z",
-      "durationMs": 9735
+      "durationMs": 9735,
+      "output": "\n\nThe git status shows 4 untracked files/directories:\n\n1. **`.mcp.json`** - MCP (Model Context Protocol) server configuration\n2. **`.serena/`** - Serena plugin configuration directory\n3. **`.vscode/`** - VS Code settings directory\n4. **`test.txt`** - A test text file\n\nAll four are untracked (shown with `??`), meaning they exist in the working directory but haven't been added to git yet. These appear to be local development/tooling configuration files rather than project source code.\n"
+    },
+    {
+      "id": "3b5f38e9-58c8-4745-856e-5aa3581bfdfd",
+      "projectId": "claude-code-manager",
+      "prompt": "make sure the project has a version number, and display that version number next to the name at the top of the screen. It should also appear in the Mac App About section and in the Mac App Get Info information.",
+      "status": "completed",
+      "maxBudget": 1,
+      "createdAt": "2026-02-05T23:48:55.519Z",
+      "startedAt": "2026-02-05T23:48:55.522Z",
+      "completedAt": "2026-02-05T23:50:38.130Z",
+      "durationMs": 102608,
+      "output": "Error: Reached max turns (10)"
+    },
+    {
+      "id": "dcc2d88c-b614-4dfe-b5a8-3f041c0bc95c",
+      "projectId": "claude-code-manager",
+      "prompt": "I opened a fresh instance of the app in the browser. I sent one task to a project. But at the top of the page it shows \"Running: 2. Pending: 0\". I would expect the running number to be 1.",
+      "status": "completed",
+      "maxBudget": 1,
+      "createdAt": "2026-02-05T23:50:11.704Z",
+      "startedAt": "2026-02-05T23:50:11.706Z",
+      "completedAt": "2026-02-05T23:52:53.527Z",
+      "durationMs": 161821,
+      "output": "Error: Reached max turns (10)"
+    },
+    {
+      "id": "f7c95269-ce58-4df0-a5d6-93f10dd905d3",
+      "projectId": "claude-code-manager",
+      "prompt": "this has been reported before. The Active Tasks pane appears to only show the first task. Vertical space for others appears to be allocated, but only one ever appears. And after that first task completes, the ACTIVE TASKS pane remains empty while other tasks execute.",
+      "status": "completed",
+      "maxBudget": 1,
+      "createdAt": "2026-02-05T23:51:52.475Z",
+      "output": "Error: Reached max turns (10)",
+      "startedAt": "2026-02-05T23:51:52.477Z",
+      "completedAt": "2026-02-05T23:54:18.877Z",
+      "durationMs": 146400
     }
   ],
-  "lastUpdated": "2026-02-05T19:30:56.669Z"
+  "lastUpdated": "2026-02-05T23:54:18.878Z"
 }

@@ -48,6 +48,13 @@ header h1 {
   color: var(--accent);
 }
 
+.version-badge {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
 .status-bar {
   display: flex;
   gap: 1.5rem;

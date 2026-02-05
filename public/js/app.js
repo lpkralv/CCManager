@@ -1,5 +1,8 @@
 function app() {
   return {
+    // App version
+    appVersion: null,
+
     // WebSocket connection
     ws: null,
     connected: false,
@@ -190,16 +193,15 @@ function app() {
         console.log(`Initial state: ${incomingTasks.length} active tasks from server, ${this.activeTasks.length} already tracked`);
 
         if (this.activeTasks.length === 0) {
-          // No existing tasks, just set directly
-          this.activeTasks = incomingTasks;
+          // No existing tasks — push each so Alpine tracks them individually
+          incomingTasks.forEach(t => this.activeTasks.push(t));
         } else {
           // Merge: add tasks from initial that aren't already present (by ID)
           const existingIds = new Set(this.activeTasks.map(t => t.id));
           const newTasks = incomingTasks.filter(t => !existingIds.has(t.id));
           if (newTasks.length > 0) {
             console.log(`Merging ${newTasks.length} new tasks from initial state`);
-            // Use spread for Alpine.js reactivity
-            this.activeTasks = [...this.activeTasks, ...newTasks];
+            newTasks.forEach(t => this.activeTasks.push(t));
           }
         }
         console.log(`Active tasks after merge: ${this.activeTasks.length}`);
@@ -210,23 +212,25 @@ function app() {
       switch (data.type) {
         case 'task:created':
           console.log(`Task created: ${data.task?.id} for project ${data.task?.projectId}`);
-          // Use spread to ensure Alpine.js reactivity triggers properly
-          this.activeTasks = [...this.activeTasks, data.task];
+          // Avoid duplicate if already present (e.g. from initial state)
+          if (!this.activeTasks.some(t => t.id === data.task.id)) {
+            this.activeTasks.push(data.task);
+          }
           console.log(`Active tasks now: ${this.activeTasks.length}`);
           break;
 
         case 'task:started':
-          this.updateTask(data.task);
+          this.updateTaskInPlace(data.task);
           break;
 
-        case 'task:output':
-          // Use map to create new array for Alpine.js reactivity
-          this.activeTasks = this.activeTasks.map(t => {
-            if (t.id === data.taskId) {
-              return { ...t, output: (t.output || '') + data.output };
-            }
-            return t;
-          });
+        case 'task:output': {
+          // Mutate existing task in-place — avoids replacing the array on every
+          // output chunk, which caused Alpine.js to lose track of other task-card
+          // DOM nodes and leave them empty/invisible.
+          const target = this.activeTasks.find(t => t.id === data.taskId);
+          if (target) {
+            target.output = (target.output || '') + data.output;
+          }
           // Auto-scroll active task output to bottom
           this.$nextTick(() => {
             document.querySelectorAll('.task-output').forEach(el => {
@@ -234,11 +238,12 @@ function app() {
             });
           });
           break;
+        }
 
         case 'task:completed':
         case 'task:failed':
         case 'task:cancelled':
-          this.updateTask(data.task);
+          this.updateTaskInPlace(data.task);
           // Refresh project details if modal is open for this project
           if (this.showProjectDetails && this.projectDetails?.project?.id === data.task.projectId) {
             this.loadProjectDetails(data.task.projectId);
@@ -249,9 +254,14 @@ function app() {
           }
           // Move to history after a delay, then update counts again
           setTimeout(() => {
-            this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
-            // Use spread for Alpine.js reactivity
-            this.taskHistory = [data.task, ...this.taskHistory].slice(0, 100);
+            const idx = this.activeTasks.findIndex(t => t.id === data.task.id);
+            if (idx !== -1) {
+              this.activeTasks.splice(idx, 1);
+            }
+            this.taskHistory.unshift(data.task);
+            if (this.taskHistory.length > 100) {
+              this.taskHistory.splice(100);
+            }
             this.updateCounts();
           }, 3000);
           break;
@@ -260,15 +270,19 @@ function app() {
       this.updateCounts();
     },
 
-    updateTask(updatedTask) {
-      // Use map to create new array for Alpine.js reactivity
-      this.activeTasks = this.activeTasks.map(t => {
-        if (t.id === updatedTask.id) {
-          // Preserve output if not in update
-          return { ...updatedTask, output: updatedTask.output || t.output };
+    updateTaskInPlace(updatedTask) {
+      // Mutate the existing task object in-place so Alpine.js keeps its DOM
+      // node stable.  This avoids replacing the whole array (which previously
+      // caused only the first task to render while other slots stayed blank).
+      const existing = this.activeTasks.find(t => t.id === updatedTask.id);
+      if (existing) {
+        // Preserve accumulated output if the update doesn't carry it
+        const preservedOutput = existing.output;
+        Object.assign(existing, updatedTask);
+        if (!updatedTask.output && preservedOutput) {
+          existing.output = preservedOutput;
         }
-        return t;
-      });
+      }
     },
 
     updateCounts() {

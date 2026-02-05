@@ -283,3 +283,4 @@ This is required for the project details endpoint to show git information.
 - Use code-reviewer agent for quality checks
 - Use test-generator agent for comprehensive test coverage
 - This project manages knowledge about sibling projects - be mindful of cross-project dependencies
+- Push all changes to both public and private repos
