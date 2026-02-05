@@ -22,6 +22,7 @@ function app() {
     // Projects summary
     projectsSummary: [],
     loadingSummary: false,
+    showSummary: false,
 
     // New project modal
     showNewProject: false,
@@ -46,7 +47,6 @@ function app() {
       await Promise.all([
         this.loadProjects(),
         this.loadTaskHistory(),
-        this.loadProjectsSummary(),
         this.loadSettings(),
       ]);
       this.connectWebSocket();
@@ -56,10 +56,11 @@ function app() {
     },
 
     async refreshProjects() {
-      await Promise.all([
-        this.loadProjects(),
-        this.loadProjectsSummary(),
-      ]);
+      const promises = [this.loadProjects()];
+      if (this.showSummary) {
+        promises.push(this.loadProjectsSummary());
+      }
+      await Promise.all(promises);
     },
 
     async loadProjects() {
