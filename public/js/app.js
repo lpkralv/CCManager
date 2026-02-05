@@ -105,7 +105,16 @@ function app() {
     },
 
     async loadProjectsSummary() {
-      this.loadingSummary = true;
+      // Save scroll position before updating data
+      const scrollContainer = document.querySelector('.summary-table-wrapper');
+      const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+      const savedScrollLeft = scrollContainer ? scrollContainer.scrollLeft : 0;
+
+      // Only show loading indicator on initial load (no data yet)
+      const isRefresh = this.projectsSummary.length > 0;
+      if (!isRefresh) {
+        this.loadingSummary = true;
+      }
       try {
         const response = await fetch('/api/projects/summary');
         this.projectsSummary = await response.json();
@@ -113,6 +122,17 @@ function app() {
         console.error('Failed to load projects summary:', err);
       } finally {
         this.loadingSummary = false;
+
+        // Restore scroll position after Alpine.js re-renders
+        if (savedScrollTop || savedScrollLeft) {
+          this.$nextTick(() => {
+            const container = document.querySelector('.summary-table-wrapper');
+            if (container) {
+              container.scrollTop = savedScrollTop;
+              container.scrollLeft = savedScrollLeft;
+            }
+          });
+        }
       }
     },
 
