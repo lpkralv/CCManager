@@ -44,9 +44,16 @@ function startServer(): void {
   // In production, the server is bundled with the app
   const serverPath = path.join(__dirname, "../server/index.js");
 
-  serverProcess = spawn("node", [serverPath], {
+  // Set cwd to the app root so services can find data/ and public/ via process.cwd()
+  const appRoot = path.join(__dirname, "../..");
+
+  // Use Electron's own binary as Node runtime — system `node` may not be
+  // in PATH when the app is launched from Finder.
+  serverProcess = spawn(process.execPath, [serverPath], {
+    cwd: appRoot,
     env: {
       ...process.env,
+      ELECTRON_RUN_AS_NODE: "1",
       PORT: PORT.toString(),
     },
     stdio: ["ignore", "pipe", "pipe"],
