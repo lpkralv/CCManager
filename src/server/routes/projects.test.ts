@@ -22,10 +22,6 @@ vi.mock("../../services/git-service.js", () => ({
   fetchRemote: vi.fn(),
 }));
 
-vi.mock("../../services/dowork-service.js", () => ({
-  getDoWorkQueue: vi.fn(),
-}));
-
 // Also mock settings-service (transitive dependency)
 vi.mock("../../services/settings-service.js", () => ({
   loadSettings: vi.fn().mockResolvedValue({}),
@@ -48,7 +44,6 @@ import {
 } from "../../services/project-service.js";
 import { createProject } from "../../services/project-creator.js";
 import { getGitStatus, getRecentCommits, fetchRemote } from "../../services/git-service.js";
-import { getDoWorkQueue } from "../../services/dowork-service.js";
 import { createApp } from "../app.js";
 
 const mockGetAllProjects = vi.mocked(getAllProjects);
@@ -57,7 +52,6 @@ const mockCreateProject = vi.mocked(createProject);
 const mockGetGitStatus = vi.mocked(getGitStatus);
 const mockGetRecentCommits = vi.mocked(getRecentCommits);
 const mockFetchRemote = vi.mocked(fetchRemote);
-const mockGetDoWorkQueue = vi.mocked(getDoWorkQueue);
 
 const app = createApp();
 
@@ -123,7 +117,7 @@ describe("projects routes", () => {
   });
 
   describe("GET /api/projects/:id/details", () => {
-    it("should return project with git status, commits, and dowork queue", async () => {
+    it("should return project with git status and commits", async () => {
       const project = makeTestProject({ id: "detail-proj" });
       mockGetProjectById.mockResolvedValue(project);
       mockGetGitStatus.mockResolvedValue({
@@ -142,11 +136,6 @@ describe("projects routes", () => {
           author: "Dev",
         },
       ]);
-      mockGetDoWorkQueue.mockResolvedValue({
-        pending: [],
-        working: [],
-        recentArchive: [],
-      });
 
       const res = await request(app).get("/api/projects/detail-proj/details");
 
@@ -154,7 +143,6 @@ describe("projects routes", () => {
       expect(res.body.project.id).toBe("detail-proj");
       expect(res.body.git.localBranch).toBe("main");
       expect(res.body.recentCommits).toHaveLength(1);
-      expect(res.body.doWork).toBeDefined();
     });
 
     it("should return 404 when project not found", async () => {
@@ -170,7 +158,6 @@ describe("projects routes", () => {
       mockGetProjectById.mockResolvedValue(project);
       mockGetGitStatus.mockRejectedValue(new Error("git error"));
       mockGetRecentCommits.mockRejectedValue(new Error("git error"));
-      mockGetDoWorkQueue.mockRejectedValue(new Error("fs error"));
 
       const res = await request(app).get("/api/projects/failing-git/details");
 
@@ -178,7 +165,6 @@ describe("projects routes", () => {
       // Should have fallback values
       expect(res.body.git.localBranch).toBe("unknown");
       expect(res.body.recentCommits).toEqual([]);
-      expect(res.body.doWork).toBeNull();
     });
   });
 
