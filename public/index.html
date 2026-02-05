@@ -220,43 +220,6 @@
           </div>
         </section>
 
-        <!-- Do-Work Queue Section -->
-        <section class="detail-section" x-show="projectDetails?.doWork">
-          <h3>Do-Work Queue</h3>
-          <div class="dowork-columns">
-            <div class="dowork-column">
-              <h4>Pending (<span x-text="projectDetails?.doWork?.pending?.length || 0"></span>)</h4>
-              <template x-for="req in projectDetails?.doWork?.pending" :key="req.id">
-                <div class="dowork-item pending" x-text="req.title"></div>
-              </template>
-              <div class="empty-state small" x-show="!projectDetails?.doWork?.pending?.length">
-                <p>None</p>
-              </div>
-            </div>
-            <div class="dowork-column">
-              <h4>Working (<span x-text="projectDetails?.doWork?.working?.length || 0"></span>)</h4>
-              <template x-for="req in projectDetails?.doWork?.working" :key="req.id">
-                <div class="dowork-item working" x-text="req.title"></div>
-              </template>
-              <div class="empty-state small" x-show="!projectDetails?.doWork?.working?.length">
-                <p>None</p>
-              </div>
-            </div>
-            <div class="dowork-column">
-              <h4>Recent Archive</h4>
-              <template x-for="req in projectDetails?.doWork?.recentArchive?.slice(0,5)" :key="req.id">
-                <div class="dowork-item archive" :class="'status-' + (req.status || 'completed')" x-text="req.title"></div>
-              </template>
-              <div class="empty-state small" x-show="!projectDetails?.doWork?.recentArchive?.length">
-                <p>None</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="detail-section" x-show="!projectDetails?.doWork">
-          <p class="muted">No do-work queue found for this project</p>
-        </div>
       </div>
     </div>
   </div>

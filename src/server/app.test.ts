@@ -21,10 +21,6 @@ vi.mock("../services/git-service.js", () => ({
   fetchRemote: vi.fn(),
 }));
 
-vi.mock("../services/dowork-service.js", () => ({
-  getDoWorkQueue: vi.fn(),
-}));
-
 vi.mock("../services/settings-service.js", () => ({
   loadSettings: vi.fn().mockResolvedValue({}),
   saveSettings: vi.fn(),

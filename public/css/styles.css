@@ -557,42 +557,6 @@ textarea {
   flex-shrink: 0;
 }
 
-/* Do-Work Columns */
-.dowork-columns {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.dowork-column h4 {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.dowork-item {
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  margin-bottom: 0.5rem;
-  background: var(--bg-secondary);
-  border-left: 3px solid var(--border);
-}
-
-.dowork-item.pending {
-  border-left-color: var(--warning);
-}
-
-.dowork-item.working {
-  border-left-color: #2196f3;
-}
-
-.dowork-item.archive {
-  border-left-color: var(--success);
-  opacity: 0.7;
-}
-
 /* Loading State */
 .loading-state {
   text-align: center;
