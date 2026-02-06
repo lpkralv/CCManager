@@ -6,6 +6,8 @@ import { getProjectById } from "./project-service.js";
 import { addTaskToHistory } from "./history-service.js";
 
 const MAX_CONCURRENT_TASKS = 3;
+const MAX_RETRIES = 2;
+const MAX_TURNS_PATTERN = /max.?turns/i;
 
 export type TaskEvent =
   | { type: "task:created"; task: Task }
@@ -13,7 +15,8 @@ export type TaskEvent =
   | { type: "task:output"; taskId: string; output: string }
   | { type: "task:completed"; task: Task }
   | { type: "task:failed"; task: Task }
-  | { type: "task:cancelled"; task: Task };
+  | { type: "task:cancelled"; task: Task }
+  | { type: "task:retrying"; task: Task };
 
 class TaskManager extends EventEmitter {
   private pendingTasks: Task[] = [];
@@ -103,15 +106,34 @@ class TaskManager extends EventEmitter {
       if (code === 0) {
         task.status = "completed";
         this.emit("event", { type: "task:completed", task } as TaskEvent);
+        await addTaskToHistory(task);
       } else {
-        task.status = "failed";
-        if (!task.error) {
-          task.error = `Process exited with code ${code}`;
-        }
-        this.emit("event", { type: "task:failed", task } as TaskEvent);
-      }
+        // Check if failure was due to max turns exceeded
+        const errorText = (task.error ?? "") + (task.output ?? "");
+        const hitMaxTurns = MAX_TURNS_PATTERN.test(errorText);
+        const retryCount = task.retryCount ?? 0;
 
-      await addTaskToHistory(task);
+        if (hitMaxTurns && retryCount < MAX_RETRIES) {
+          // Retry with doubled budget
+          task.retryCount = retryCount + 1;
+          task.maxBudget = (task.maxBudget ?? 1.0) * 2;
+          task.status = "pending";
+          task.error = undefined;
+          task.output = "";
+          task.startedAt = undefined;
+          task.completedAt = undefined;
+          task.durationMs = undefined;
+          this.pendingTasks.push(task);
+          this.emit("event", { type: "task:retrying", task } as TaskEvent);
+        } else {
+          task.status = "failed";
+          if (!task.error) {
+            task.error = `Process exited with code ${code}`;
+          }
+          this.emit("event", { type: "task:failed", task } as TaskEvent);
+          await addTaskToHistory(task);
+        }
+      }
 
       // Process next task in queue
       this.processQueue();

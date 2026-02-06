@@ -68,6 +68,7 @@ describe("app", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe("ok");
+      expect(res.body.version).toBeDefined();
       expect(res.body.timestamp).toBeDefined();
       expect(typeof res.body.uptime).toBe("number");
     });

@@ -1,10 +1,20 @@
 import express from "express";
 import path from "path";
+import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import apiRoutes from "./routes/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Read version once at startup (avoids async fs reads per request)
+const pkgPath = path.join(__dirname, "../../package.json");
+let appVersion = "0.0.0";
+try {
+  appVersion = JSON.parse(readFileSync(pkgPath, "utf-8")).version;
+} catch {
+  // Fall back to default if package.json can't be read
+}
 
 export function createApp(): express.Express {
   const app = express();
@@ -23,13 +33,19 @@ export function createApp(): express.Express {
   const publicPath = path.join(__dirname, "../../public");
   app.use(express.static(publicPath));
 
-  // Health check endpoint
+  // Health check endpoint (includes version)
   app.get("/api/health", (_req, res) => {
     res.json({
       status: "ok",
+      version: appVersion,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
     });
+  });
+
+  // Version endpoint
+  app.get("/api/version", (_req, res) => {
+    res.json({ version: appVersion });
   });
 
   // Shutdown endpoint

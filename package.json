@@ -1,5 +1,5 @@
 {
-  "name": "ccmanager",
+  "name": "claude-code-manager",
   "version": "0.1.0",
   "description": "Knowledge repository and management tools for Claude Code projects",
   "type": "module",
@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "npx playwright test",
     "start:electron": "electron .",
     "generate-icon": "node scripts/generate-icon.mjs",
     "build:mac": "npm run generate-icon && npm run build && electron-builder --mac",
@@ -32,11 +33,6 @@
   ],
   "author": "lpkralv",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lpkralv/CCManager.git"
-  },
-  "homepage": "https://github.com/lpkralv/CCManager",
   "dependencies": {
     "dotenv": "^16.4.0",
     "express": "^4.18.2",
@@ -45,6 +41,7 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/express": "^4.17.21",
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.3",

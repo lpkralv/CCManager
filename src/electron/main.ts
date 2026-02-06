@@ -159,7 +159,7 @@ function createMenu(): void {
           label: "Learn More",
           click: async () => {
             const { shell } = await import("electron");
-            await shell.openExternal("https://github.com/lpkralv/CCManager");
+            await shell.openExternal("https://github.com/lpkralv/ClaudeCodeManager");
           },
         },
       ],

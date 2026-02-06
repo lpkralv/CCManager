@@ -1,17 +1,17 @@
 #!/bin/bash
-# start_CCManager.command -- Double-click to start the CCManager server
+# start_CCManager.command — Double-click to start the CCManager server
 # Detects and kills any already-running instance before launching a new one.
 
-PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="/Volumes/Sheridan/sandbox/ClaudeCodeManager"
 PORT=3000
 NODE="/usr/local/bin/node"
 SERVER="$PROJECT_DIR/dist/server/index.js"
 
 cd "$PROJECT_DIR" || { echo "ERROR: Cannot access $PROJECT_DIR"; read -p "Press Enter to close..."; exit 1; }
 
-echo "+-----------------------------------------+"
-echo "|       CCManager Server Launcher          |"
-echo "+-----------------------------------------+"
+echo "╔══════════════════════════════════════╗"
+echo "║       CCManager Server Launcher      ║"
+echo "╚══════════════════════════════════════╝"
 echo ""
 
 # Check if server is already running
@@ -48,9 +48,35 @@ if [ ! -f "$SERVER" ]; then
 fi
 
 echo "  Starting CCManager server..."
-echo "  URL: http://localhost:$PORT"
-echo "  Press Ctrl+C to stop."
-echo ""
 
-# Start the server (foreground so the terminal stays open)
-"$NODE" "$SERVER"
+# Create logs directory if needed
+mkdir -p "$PROJECT_DIR/logs"
+LOG_FILE="$PROJECT_DIR/logs/ccmanager.log"
+
+# Start the server in the background with output to log file
+nohup "$NODE" "$SERVER" >> "$LOG_FILE" 2>&1 &
+SERVER_PID=$!
+
+# Wait for server to come up (poll health endpoint)
+echo "  Waiting for server..."
+for i in $(seq 1 10); do
+    sleep 1
+    if curl -s "http://localhost:$PORT/api/health" > /dev/null 2>&1; then
+        echo ""
+        echo "  Server is running! (PID: $SERVER_PID)"
+        echo "  URL:  http://localhost:$PORT"
+        echo "  Logs: $LOG_FILE"
+        echo "  Stop: double-click stop_CCManager.command"
+        echo ""
+        echo "  You can close this window."
+        exit 0
+    fi
+    printf "."
+done
+
+# If we get here, server didn't start
+echo ""
+echo "  WARNING: Server may not have started correctly."
+echo "  Check logs: $LOG_FILE"
+echo ""
+read -p "  Press Enter to close..."
