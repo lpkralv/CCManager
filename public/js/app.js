@@ -495,7 +495,7 @@ function app() {
 
     async loadVersion() {
       try {
-        const response = await fetch('/api/version');
+        const response = await fetch('/api/health');
         const data = await response.json();
         this.appVersion = data.version || null;
       } catch (err) {
