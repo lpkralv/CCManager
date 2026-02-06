@@ -284,3 +284,4 @@ This is required for the project details endpoint to show git information.
 - Use test-generator agent for comprehensive test coverage
 - This project manages knowledge about sibling projects - be mindful of cross-project dependencies
 - Push all changes to both public and private repos
+- Always run tests related to a change before concluding a /do-work request
