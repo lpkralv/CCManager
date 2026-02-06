@@ -30,7 +30,7 @@ export class ClaudeProcess extends EventEmitter {
     ];
 
     if (this.options.maxBudget) {
-      args.push("--max-turns", Math.ceil(this.options.maxBudget * 10).toString());
+      args.push("--max-turns", Math.max(25, Math.ceil(this.options.maxBudget * 10)).toString());
     }
 
     // Add verbose for streaming output

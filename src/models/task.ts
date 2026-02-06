@@ -22,6 +22,7 @@ export const Task = z.object({
   durationMs: z.number().optional(),
   output: z.string().default(""),
   error: z.string().optional(),
+  retryCount: z.number().int().nonnegative().optional(),
 });
 export type Task = z.infer<typeof Task>;
 
