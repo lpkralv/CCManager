@@ -56,6 +56,7 @@ function app() {
         this.loadProjects(),
         this.loadTaskHistory(),
         this.loadSettings(),
+        this.loadVersion(),
       ]);
       // Recalculate needsSetup after both settings and projects are loaded
       this.recalcNeedsSetup();
@@ -489,6 +490,16 @@ function app() {
         this.showProjectDetails = false;
       } finally {
         this.loadingDetails = false;
+      }
+    },
+
+    async loadVersion() {
+      try {
+        const response = await fetch('/api/version');
+        const data = await response.json();
+        this.appVersion = data.version || null;
+      } catch (err) {
+        console.error('Failed to load version:', err);
       }
     },
 
