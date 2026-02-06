@@ -193,15 +193,15 @@ function app() {
         console.log(`Initial state: ${incomingTasks.length} active tasks from server, ${this.activeTasks.length} already tracked`);
 
         if (this.activeTasks.length === 0) {
-          // No existing tasks — push each so Alpine tracks them individually
-          incomingTasks.forEach(t => this.activeTasks.push(t));
+          // Replace the array so Alpine.js detects a full reactive update
+          this.activeTasks = [...incomingTasks];
         } else {
-          // Merge: add tasks from initial that aren't already present (by ID)
+          // Merge: keep existing, add tasks from initial that aren't already present (by ID)
           const existingIds = new Set(this.activeTasks.map(t => t.id));
           const newTasks = incomingTasks.filter(t => !existingIds.has(t.id));
           if (newTasks.length > 0) {
             console.log(`Merging ${newTasks.length} new tasks from initial state`);
-            newTasks.forEach(t => this.activeTasks.push(t));
+            this.activeTasks = [...this.activeTasks, ...newTasks];
           }
         }
         console.log(`Active tasks after merge: ${this.activeTasks.length}`);
@@ -214,7 +214,7 @@ function app() {
           console.log(`Task created: ${data.task?.id} for project ${data.task?.projectId}`);
           // Avoid duplicate if already present (e.g. from initial state)
           if (!this.activeTasks.some(t => t.id === data.task.id)) {
-            this.activeTasks.push(data.task);
+            this.activeTasks = [...this.activeTasks, data.task];
           }
           console.log(`Active tasks now: ${this.activeTasks.length}`);
           break;
@@ -254,14 +254,8 @@ function app() {
           }
           // Move to history after a delay, then update counts again
           setTimeout(() => {
-            const idx = this.activeTasks.findIndex(t => t.id === data.task.id);
-            if (idx !== -1) {
-              this.activeTasks.splice(idx, 1);
-            }
-            this.taskHistory.unshift(data.task);
-            if (this.taskHistory.length > 100) {
-              this.taskHistory.splice(100);
-            }
+            this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
+            this.taskHistory = [data.task, ...this.taskHistory.slice(0, 99)];
             this.updateCounts();
           }, 3000);
           break;
