@@ -415,6 +415,41 @@ function app() {
       this.showTaskOutput = true;
     },
 
+    async dispatchFixTask(task) {
+      const projectName = this.getProjectName(task.projectId);
+      let prompt = `Fix the following failed task:\n\nProject: ${projectName}\nOriginal prompt: ${task.prompt}`;
+      if (task.error) {
+        prompt += `\n\nError:\n${task.error}`;
+      }
+      if (task.output) {
+        prompt += `\n\nOutput (if any):\n${task.output}`;
+      }
+
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: 'claude-code-manager',
+            prompt: prompt
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to dispatch fix task');
+        }
+
+        const newTask = await response.json();
+        console.log(`Fix task dispatched: ${newTask.id}`);
+        // Brief visual feedback
+        alert(`Fix task dispatched for "${projectName}" (Task ID: ${newTask.id})`);
+      } catch (err) {
+        console.error('Failed to dispatch fix task:', err);
+        alert('Failed to dispatch fix task: ' + err.message);
+      }
+    },
+
     async createProject() {
       if (!this.newProjectName || !this.newProjectDesc) return;
 

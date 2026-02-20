@@ -145,13 +145,21 @@
                     <span class="task-project" x-text="getProjectName(task.projectId)"></span>
                     <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
                   </div>
-                  <button
-                    class="btn btn-small btn-view-output"
-                    x-show="task.output"
-                    @click="viewTaskOutput(task)"
-                  >View Output</button>
+                  <div class="task-header-actions">
+                    <button
+                      class="btn btn-small btn-fix"
+                      x-show="task.status === 'failed'"
+                      @click="dispatchFixTask(task)"
+                    >Fix</button>
+                    <button
+                      class="btn btn-small btn-view-output"
+                      x-show="task.output || task.error"
+                      @click="viewTaskOutput(task)"
+                    >View Output</button>
+                  </div>
                 </div>
                 <div class="task-prompt" x-text="truncate(task.prompt, 100)"></div>
+                <div class="task-error-preview" x-show="task.error" x-text="truncate(task.error, 120)"></div>
                 <div class="task-meta">
                   <span x-text="formatTime(task.completedAt || task.createdAt)"></span>
                   <span x-show="task.durationMs" x-text="formatDuration(task.durationMs)"></span>
