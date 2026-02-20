@@ -167,6 +167,8 @@ function app() {
       this.ws.onopen = () => {
         console.log('WebSocket connected');
         this.connected = true;
+        // Reload history on reconnect to catch any completions missed during disconnect
+        this.loadTaskHistory();
       };
 
       this.ws.onclose = () => {
@@ -259,9 +261,15 @@ function app() {
             this.refreshProjects();
           }
           // Move to history after a delay, then update counts again
+          const taskId = data.task.id;
           setTimeout(() => {
-            this.activeTasks = this.activeTasks.filter(t => t.id !== data.task.id);
-            this.taskHistory = [data.task, ...this.taskHistory.slice(0, 99)];
+            // Use the live activeTasks entry (has accumulated output) instead of the raw event data
+            const finishedTask = this.activeTasks.find(t => t.id === taskId) || data.task;
+            this.activeTasks = this.activeTasks.filter(t => t.id !== taskId);
+            // Only add if not already present (e.g. added by loadTaskHistory on reconnect)
+            if (!this.taskHistory.some(t => t.id === taskId)) {
+              this.taskHistory = [finishedTask, ...this.taskHistory.slice(0, 99)];
+            }
             this.updateCounts();
           }, 3000);
           break;
