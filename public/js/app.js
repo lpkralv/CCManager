@@ -477,7 +477,7 @@ function app() {
           throw new Error(error.error || 'Failed to create project');
         }
 
-        const project = await response.json();
+        const { project, initWarning } = await response.json();
         this.projects.push(project);
         this.showNewProject = false;
         this.newProjectName = '';
@@ -485,6 +485,12 @@ function app() {
         // Select the newly created project
         this.selectedProjects = [project];
         this.lastSelectedIndex = this.projects.length - 1;
+
+        if (initWarning) {
+          alert(`Project "${project.name}" created successfully.\n\nNote: /init could not run automatically:\n${initWarning}\n\nYou can run /init manually by dispatching a task to this project.`);
+        } else {
+          alert(`Project "${project.name}" created successfully.`);
+        }
       } catch (err) {
         console.error('Failed to create project:', err);
         alert('New Project Failed: ' + err.message);

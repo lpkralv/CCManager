@@ -139,7 +139,7 @@ router.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(201).json(result.project);
+    res.status(201).json({ project: result.project, initWarning: result.initWarning ?? null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     res.status(500).json({ error: message });

@@ -17,6 +17,7 @@ export interface CreateProjectResult {
   success: boolean;
   project?: Project;
   error?: string;
+  initWarning?: string;
 }
 
 function slugify(name: string): string {
@@ -144,13 +145,12 @@ async function runClaudeInit(
   description: string
 ): Promise<{ success: boolean; error?: string }> {
   return new Promise((resolve) => {
+    const env: NodeJS.ProcessEnv = { ...process.env, PROJECT_NAME: projectName, PROJECT_DESCRIPTION: description };
+    delete env.CLAUDECODE;
+
     const proc = spawn("claude", ["-p", "/init", "--dangerously-skip-permissions"], {
       cwd: projectPath,
-      env: {
-        ...process.env,
-        PROJECT_NAME: projectName,
-        PROJECT_DESCRIPTION: description,
-      },
+      env,
       stdio: ["ignore", "pipe", "pipe"],
     });
 
@@ -222,8 +222,10 @@ export async function createProject(input: CreateProjectInput): Promise<CreatePr
 
     // Run claude /init in the new project (may timeout or fail)
     const initResult = await runClaudeInit(projectPath, input.name, input.description);
+    let initWarning: string | undefined;
     if (!initResult.success) {
       console.warn(`Claude /init warning: ${initResult.error}`);
+      initWarning = initResult.error;
       // Don't fail - use fallback instead
     }
 
@@ -277,7 +279,7 @@ export async function createProject(input: CreateProjectInput): Promise<CreatePr
     // Add to inventory
     await addProject(project);
 
-    return { success: true, project };
+    return { success: true, project, initWarning };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return { success: false, error: message };
