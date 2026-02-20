@@ -241,6 +241,11 @@ function app() {
           break;
         }
 
+        case 'task:retrying':
+          // Task is being retried (e.g. after max turns exceeded) - update in place
+          this.updateTaskInPlace(data.task);
+          break;
+
         case 'task:completed':
         case 'task:failed':
         case 'task:cancelled':

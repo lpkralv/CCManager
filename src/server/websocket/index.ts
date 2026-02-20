@@ -9,13 +9,17 @@ export function setupWebSocket(server: Server): WebSocketServer {
     console.log("WebSocket client connected");
 
     // Send current state on connect
-    const activeTasks = taskManager.getActiveTasks();
-    ws.send(
-      JSON.stringify({
-        type: "initial",
-        tasks: activeTasks,
-      })
-    );
+    try {
+      const activeTasks = taskManager.getActiveTasks();
+      ws.send(
+        JSON.stringify({
+          type: "initial",
+          tasks: activeTasks,
+        })
+      );
+    } catch (err) {
+      console.error("Failed to send initial state to WebSocket client:", err);
+    }
 
     ws.on("close", () => {
       console.log("WebSocket client disconnected");
@@ -31,7 +35,13 @@ export function setupWebSocket(server: Server): WebSocketServer {
     const message = JSON.stringify(event);
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
+        try {
+          client.send(message);
+        } catch (err) {
+          console.error("Failed to send event to WebSocket client, removing dead client:", err);
+          // Remove dead client to prevent future send failures
+          wss.clients.delete(client);
+        }
       }
     });
   });
