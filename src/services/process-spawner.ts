@@ -36,9 +36,12 @@ export class ClaudeProcess extends EventEmitter {
     // Add verbose for streaming output
     args.push("--verbose");
 
+    const env = { ...process.env };
+    delete env.CLAUDECODE;
+
     this.process = spawn("claude", args, {
       cwd: this.options.cwd,
-      env: { ...process.env },
+      env,
       stdio: ["ignore", "pipe", "pipe"],
     });
 
