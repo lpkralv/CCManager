@@ -389,14 +389,14 @@ function app() {
 
         if (failures.length > 0) {
           const failedProjects = failures.map(f => `${f.project}: ${f.error}`).join('\n');
-          alert(`Some tasks failed to dispatch:\n${failedProjects}`);
+          alert(`Task Dispatch Failed:\n${failedProjects}`);
         }
 
         // Clear form on success (even partial)
         this.taskPrompt = '';
       } catch (err) {
         console.error('Failed to dispatch tasks:', err);
-        alert('Failed to dispatch tasks: ' + err.message);
+        alert('Task Dispatch Failed: ' + err.message);
       } finally {
         this.dispatching = false;
       }
@@ -414,7 +414,7 @@ function app() {
         }
       } catch (err) {
         console.error('Failed to cancel task:', err);
-        alert('Failed to cancel task: ' + err.message);
+        alert('Cancel Task Failed: ' + err.message);
       }
     },
 
@@ -454,7 +454,7 @@ function app() {
         alert(`Fix task dispatched for "${projectName}" (Task ID: ${newTask.id})`);
       } catch (err) {
         console.error('Failed to dispatch fix task:', err);
-        alert('Failed to dispatch fix task: ' + err.message);
+        alert('Retry Task Failed: ' + err.message);
       }
     },
 
@@ -487,7 +487,7 @@ function app() {
         this.lastSelectedIndex = this.projects.length - 1;
       } catch (err) {
         console.error('Failed to create project:', err);
-        alert('Failed to create project: ' + err.message);
+        alert('New Project Failed: ' + err.message);
       } finally {
         this.creatingProject = false;
       }
@@ -534,7 +534,7 @@ function app() {
         this.projectDetails = await response.json();
       } catch (err) {
         console.error('Failed to load project details:', err);
-        alert('Failed to load project details: ' + err.message);
+        alert('Load Project Details Failed: ' + err.message);
         this.showProjectDetails = false;
       } finally {
         this.loadingDetails = false;
@@ -595,7 +595,7 @@ function app() {
         await this.refreshProjects();
       } catch (err) {
         console.error('Failed to save settings:', err);
-        alert('Failed to save settings: ' + err.message);
+        alert('Save Settings Failed: ' + err.message);
       } finally {
         this.savingSettings = false;
       }

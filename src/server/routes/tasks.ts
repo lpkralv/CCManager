@@ -3,13 +3,14 @@ import { taskManager } from "../../services/task-manager.js";
 import { getCompletedTasks } from "../../services/history-service.js";
 import { CreateTaskInput } from "../../models/task.js";
 import { z } from "zod";
+import { formatZodError } from "../zod-utils.js";
 
 const router = Router();
 
 const CreateTaskSchema = z.object({
-  projectId: z.string().min(1),
-  prompt: z.string().min(1),
-  maxBudget: z.number().positive().optional().default(1.0),
+  projectId: z.string().min(1, "Project ID is required"),
+  prompt: z.string().min(1, "Prompt cannot be empty"),
+  maxBudget: z.number().positive("Max budget must be a positive number").optional().default(1.0),
 });
 
 // POST /api/tasks - Create new task
@@ -17,7 +18,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const parsed = CreateTaskSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid input", details: parsed.error.issues });
+      res.status(400).json({ error: formatZodError(parsed.error) });
       return;
     }
 

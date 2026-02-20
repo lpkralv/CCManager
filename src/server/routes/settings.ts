@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { access } from "fs/promises";
+import { formatZodError } from "../zod-utils.js";
 import {
   loadSettings,
   saveSettings,
@@ -46,7 +47,7 @@ router.put("/", async (req: Request, res: Response) => {
   try {
     const parsed = UpdateSettingsSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid input", details: parsed.error.issues });
+      res.status(400).json({ error: formatZodError(parsed.error) });
       return;
     }
 

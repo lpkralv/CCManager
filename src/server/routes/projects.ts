@@ -3,12 +3,13 @@ import { getAllProjects, getProjectById } from "../../services/project-service.j
 import { createProject, CreateProjectInput } from "../../services/project-creator.js";
 import { getGitStatus, getRecentCommits, fetchRemote } from "../../services/git-service.js";
 import { z } from "zod";
+import { formatZodError } from "../zod-utils.js";
 
 const router = Router();
 
 const CreateProjectSchema = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().min(1).max(2000),
+  name: z.string().min(1, "Project name is required").max(100, "Project name must be 100 characters or less"),
+  description: z.string().min(1, "Description is required").max(2000, "Description must be 2000 characters or less"),
 });
 
 // GET /api/projects - List all projects
@@ -126,7 +127,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const parsed = CreateProjectSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid input", details: parsed.error.issues });
+      res.status(400).json({ error: formatZodError(parsed.error) });
       return;
     }
 
