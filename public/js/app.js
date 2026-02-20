@@ -458,7 +458,7 @@ function app() {
     formatTime(dateStr) {
       if (!dateStr) return '';
       const date = new Date(dateStr);
-      return date.toLocaleTimeString();
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ', ' + date.toLocaleTimeString();
     },
 
     formatDuration(ms) {
