@@ -8,7 +8,7 @@ const router = Router();
 
 const CreateProjectSchema = z.object({
   name: z.string().min(1).max(100),
-  description: z.string().min(1).max(500),
+  description: z.string().min(1).max(2000),
 });
 
 // GET /api/projects - List all projects

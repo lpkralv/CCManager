@@ -44,7 +44,11 @@ export async function getProjectsRoot(): Promise<string | undefined> {
     return process.env.PROJECTS_ROOT;
   }
   const settings = await loadSettings();
-  return settings.projectsRoot;
+  if (settings.projectsRoot) {
+    return settings.projectsRoot;
+  }
+  // Fall back to inferred root (derived from existing project paths)
+  return inferProjectsRoot();
 }
 
 export async function setProjectsRoot(projectsRoot: string): Promise<void> {
