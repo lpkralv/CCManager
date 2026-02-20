@@ -1,6 +1,6 @@
 {
   "name": "claude-code-manager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Knowledge repository and management tools for Claude Code projects",
   "type": "module",
   "main": "dist/electron/main.js",
