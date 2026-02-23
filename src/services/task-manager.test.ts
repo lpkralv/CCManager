@@ -693,5 +693,19 @@ describe("TaskManager", () => {
 
       expect(task.retryCount).toBe(1);
     });
+
+    it("should retry when exit code 0 but output contains max turns message", async () => {
+      const task = await taskManager.createTask(defaultInput());
+      await flushPromises();
+
+      const proc = allMockProcesses[0]!;
+      // Claude exits 0 but the output contains the max turns error (real-world case)
+      proc.emit("output", "Error: Reached max turns (100)");
+      proc.emit("exit", 0);
+      await flushPromises();
+
+      expect(task.retryCount).toBe(1);
+      expect(task.status).toBe("running");
+    });
   });
 });

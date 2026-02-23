@@ -103,36 +103,36 @@ class TaskManager extends EventEmitter {
       task.completedAt = new Date();
       task.durationMs = task.completedAt.getTime() - (task.startedAt?.getTime() ?? 0);
 
-      if (code === 0) {
+      // Check for max turns in all output/error regardless of exit code
+      const allOutput = (task.error ?? "") + (task.output ?? "");
+      const hitMaxTurns = MAX_TURNS_PATTERN.test(allOutput);
+      const retryCount = task.retryCount ?? 0;
+
+      if (hitMaxTurns && retryCount < MAX_RETRIES) {
+        // Retry with doubled budget
+        task.retryCount = retryCount + 1;
+        task.maxBudget = (task.maxBudget ?? 1.0) * 2;
+        task.status = "pending";
+        task.error = undefined;
+        task.output = "";
+        task.startedAt = undefined;
+        task.completedAt = undefined;
+        task.durationMs = undefined;
+        this.pendingTasks.push(task);
+        this.emit("event", { type: "task:retrying", task } as TaskEvent);
+      } else if (code === 0 && !hitMaxTurns) {
         task.status = "completed";
         this.emit("event", { type: "task:completed", task } as TaskEvent);
         await addTaskToHistory(task);
       } else {
-        // Check if failure was due to max turns exceeded
-        const errorText = (task.error ?? "") + (task.output ?? "");
-        const hitMaxTurns = MAX_TURNS_PATTERN.test(errorText);
-        const retryCount = task.retryCount ?? 0;
-
-        if (hitMaxTurns && retryCount < MAX_RETRIES) {
-          // Retry with doubled budget
-          task.retryCount = retryCount + 1;
-          task.maxBudget = (task.maxBudget ?? 1.0) * 2;
-          task.status = "pending";
-          task.error = undefined;
-          task.output = "";
-          task.startedAt = undefined;
-          task.completedAt = undefined;
-          task.durationMs = undefined;
-          this.pendingTasks.push(task);
-          this.emit("event", { type: "task:retrying", task } as TaskEvent);
-        } else {
-          task.status = "failed";
-          if (!task.error) {
-            task.error = `Process exited with code ${code}`;
-          }
-          this.emit("event", { type: "task:failed", task } as TaskEvent);
-          await addTaskToHistory(task);
+        task.status = "failed";
+        if (!task.error) {
+          task.error = hitMaxTurns
+            ? `Reached max turns limit after ${MAX_RETRIES} retries`
+            : `Process exited with code ${code}`;
         }
+        this.emit("event", { type: "task:failed", task } as TaskEvent);
+        await addTaskToHistory(task);
       }
 
       // Process next task in queue

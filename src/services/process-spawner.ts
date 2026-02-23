@@ -23,15 +23,27 @@ export class ClaudeProcess extends EventEmitter {
   }
 
   start(): void {
+    const maxTurns = this.options.maxBudget
+      ? Math.max(100, Math.ceil(this.options.maxBudget * 50))
+      : 100;
+
+    const turnAdvisory =
+      `\n\n---\nSYSTEM NOTE: This session has a maximum of ${maxTurns} turns. ` +
+      `If you cannot fully complete this task within that limit, please: ` +
+      `(1) save all partial work (commit any changes, create TODO/notes files, etc.), ` +
+      `(2) document clearly what was completed and what still remains, and ` +
+      `(3) return a concise summary of progress and remaining work as your final response. ` +
+      `Do not let the session end with an unhandled error — return a meaningful partial result.`;
+
+    const promptWithAdvisory = this.options.prompt + turnAdvisory;
+
     const args = [
       "-p",
-      this.options.prompt,
+      promptWithAdvisory,
       "--dangerously-skip-permissions",
+      "--max-turns",
+      maxTurns.toString(),
     ];
-
-    if (this.options.maxBudget) {
-      args.push("--max-turns", Math.max(25, Math.ceil(this.options.maxBudget * 10)).toString());
-    }
 
     // Add verbose for streaming output
     args.push("--verbose");

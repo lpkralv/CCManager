@@ -59,47 +59,65 @@ describe("ClaudeProcess", () => {
       proc.start();
 
       expect(mockSpawn).toHaveBeenCalledOnce();
-      expect(mockSpawn).toHaveBeenCalledWith(
-        "claude",
-        ["-p", "Fix the bug", "--dangerously-skip-permissions", "--verbose"],
-        {
-          cwd: "/tmp/test-project",
-          env: expect.objectContaining({}),
-          stdio: ["ignore", "pipe", "pipe"],
-        },
-      );
+      const [cmd, args, opts] = mockSpawn.mock.calls[0]! as [string, string[], object];
+      expect(cmd).toBe("claude");
+      expect(args).toContain("-p");
+      expect(args).toContain("--dangerously-skip-permissions");
+      expect(args).toContain("--max-turns");
+      expect(args).toContain("100");
+      expect(args).toContain("--verbose");
+      // Prompt arg (after -p) should start with the original prompt
+      const promptIdx = args.indexOf("-p");
+      expect(args[promptIdx + 1]).toContain("Fix the bug");
+      expect(opts).toMatchObject({
+        cwd: "/tmp/test-project",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    });
+
+    it("appends the max-turns advisory to every prompt", () => {
+      createMockProcess();
+      const proc = new ClaudeProcess(defaultOptions);
+      proc.start();
+
+      const args = mockSpawn.mock.calls[0]![1] as string[];
+      const promptIdx = args.indexOf("-p");
+      const prompt = args[promptIdx + 1]!;
+      expect(prompt).toContain("SYSTEM NOTE");
+      expect(prompt).toContain("maximum of 100 turns");
     });
 
     it("includes --max-turns when maxBudget is provided", () => {
       createMockProcess();
+      // maxBudget=5 => Math.max(100, ceil(5*50)) = Math.max(100, 250) = 250
       const proc = new ClaudeProcess({ ...defaultOptions, maxBudget: 5 });
       proc.start();
 
       const args = mockSpawn.mock.calls[0]![1] as string[];
       expect(args).toContain("--max-turns");
-      expect(args).toContain("50");
+      expect(args).toContain("250");
     });
 
-    it("enforces a minimum of 25 turns for small maxBudget values", () => {
+    it("enforces a minimum of 100 turns for small maxBudget values", () => {
       createMockProcess();
-      // maxBudget=0.5 => ceil(0.5*10)=5, but Math.max(25,5)=25
+      // maxBudget=0.5 => Math.max(100, ceil(0.5*50)) = Math.max(100, 25) = 100
       const proc = new ClaudeProcess({ ...defaultOptions, maxBudget: 0.5 });
       proc.start();
 
       const args = mockSpawn.mock.calls[0]![1] as string[];
       expect(args).toContain("--max-turns");
-      expect(args).toContain("25");
+      expect(args).toContain("100");
     });
 
     it("calculates max-turns correctly for higher budgets", () => {
       createMockProcess();
-      // maxBudget=10 => ceil(10*10)=100, Math.max(25,100)=100
+      // maxBudget=10 => Math.max(100, ceil(10*50)) = Math.max(100, 500) = 500
       const proc = new ClaudeProcess({ ...defaultOptions, maxBudget: 10 });
       proc.start();
 
       const args = mockSpawn.mock.calls[0]![1] as string[];
       expect(args).toContain("--max-turns");
-      expect(args).toContain("100");
+      expect(args).toContain("500");
     });
 
     it("always appends --verbose as the last argument", () => {
@@ -310,10 +328,13 @@ describe("spawnClaude()", () => {
 
     spawnClaude(options);
 
-    expect(mockSpawn).toHaveBeenCalledWith(
-      "claude",
-      expect.arrayContaining(["-p", "Refactor the module", "--max-turns", "70"]),
-      expect.objectContaining({ cwd: "/my/project" }),
-    );
+    // maxBudget=7 => Math.max(100, ceil(7*50)) = Math.max(100, 350) = 350
+    const [cmd, args, opts] = mockSpawn.mock.calls[0]! as [string, string[], object];
+    expect(cmd).toBe("claude");
+    expect(args).toContain("--max-turns");
+    expect(args).toContain("350");
+    const promptIdx = args.indexOf("-p");
+    expect(args[promptIdx + 1]).toContain("Refactor the module");
+    expect(opts).toMatchObject({ cwd: "/my/project" });
   });
 });
