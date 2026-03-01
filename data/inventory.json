@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-02-03T21:58:14.939Z",
+  "lastUpdated": "2026-03-01T01:16:21.920Z",
   "projects": [
     {
       "id": "claude-code-manager",
@@ -1062,6 +1062,90 @@
         "hasClaudeMd": true,
         "lastScanned": "2026-02-03T21:58:14.937Z",
         "lastModified": "2026-02-03T21:58:14.937Z"
+      }
+    },
+    {
+      "id": "math-musings",
+      "name": "Math Musings",
+      "path": "/Volumes/Sheridan/sandbox/Math Musings",
+      "description": "This is a project to apply Claude Code to a number of Math problems and explorations. One project, but multiple, independent problems.\n",
+      "projectType": "utility",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "python",
+        "buildSystem": "scripts"
+      },
+      "git": {
+        "initialized": true,
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": false
+        },
+        "directories": {
+          "src": false,
+          "docs": false,
+          "tests": false,
+          "background": false
+        }
+      },
+      "relationships": [
+        {
+          "type": "part-of",
+          "targetProject": "ccstartup",
+          "description": "Instance of CCSTARTUP template"
+        }
+      ],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-02-24T18:20:02.287Z",
+        "lastModified": "2026-02-24T18:20:02.287Z"
+      }
+    },
+    {
+      "id": "math-of-intelligence",
+      "name": "Math of Intelligence",
+      "path": "/Volumes/Sheridan/sandbox/Math of Intelligence",
+      "description": "A project to develop a Mathematical framework for the study, description, and understanding of intelligence, including both biological and machine intelligence..\n",
+      "projectType": "utility",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "python",
+        "buildSystem": "scripts"
+      },
+      "git": {
+        "initialized": true,
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": false
+        },
+        "directories": {
+          "src": false,
+          "docs": false,
+          "tests": false,
+          "background": false
+        }
+      },
+      "relationships": [
+        {
+          "type": "part-of",
+          "targetProject": "ccstartup",
+          "description": "Instance of CCSTARTUP template"
+        }
+      ],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-03-01T01:16:21.920Z",
+        "lastModified": "2026-03-01T01:16:21.920Z"
       }
     }
   ]

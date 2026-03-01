@@ -22,6 +22,20 @@ function app() {
     taskPrompt: '',
     dispatching: false,
 
+    // Image attachments
+    attachedImages: [],
+    isDraggingOver: false,
+    uploadingImage: false,
+
+    // Image browser modal
+    showImageBrowser: false,
+    imageSearchQuery: '',
+    imageSearchResults: [],
+    browseCurrentPath: '',
+    browseDirectories: [],
+    browseFiles: [],
+    browsePath: [],
+
     // Projects summary
     projectsSummary: [],
     loadingSummary: false,
@@ -360,7 +374,10 @@ function app() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               projectId: project.id,
-              prompt: this.taskPrompt
+              prompt: this.taskPrompt,
+              images: this.attachedImages.length > 0
+                ? this.attachedImages.map(img => img.path)
+                : undefined
             })
           }).then(async response => {
             console.log(`Response for ${project.name}: ${response.status}`);
@@ -394,6 +411,7 @@ function app() {
 
         // Clear form on success (even partial)
         this.taskPrompt = '';
+        this.attachedImages = [];
       } catch (err) {
         console.error('Failed to dispatch tasks:', err);
         alert('Task Dispatch Failed: ' + err.message);
@@ -605,6 +623,186 @@ function app() {
       } finally {
         this.savingSettings = false;
       }
+    },
+
+    // === Image Attachment Methods ===
+
+    async uploadImage(file) {
+      const formData = new FormData();
+      formData.append('images', file);
+
+      try {
+        const response = await fetch('/api/uploads', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
+
+        const results = await response.json();
+        return results[0]; // Single file upload returns array
+      } catch (err) {
+        console.error('Image upload failed:', err);
+        alert('Image Upload Failed: ' + err.message);
+        return null;
+      }
+    },
+
+    async handleImageDrop(event) {
+      this.isDraggingOver = false;
+      const files = event.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        const result = await this.uploadImage(file);
+        if (result) {
+          this.attachedImages.push({
+            ...result,
+            previewUrl: '/api/uploads/' + result.filename
+          });
+        }
+      }
+    },
+
+    async handleImagePaste(event) {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (!item.type.startsWith('image/')) continue;
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+
+        const result = await this.uploadImage(file);
+        if (result) {
+          this.attachedImages.push({
+            ...result,
+            previewUrl: '/api/uploads/' + result.filename
+          });
+        }
+      }
+    },
+
+    async handleFileSelect(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      for (const file of files) {
+        const result = await this.uploadImage(file);
+        if (result) {
+          this.attachedImages.push({
+            ...result,
+            previewUrl: '/api/uploads/' + result.filename
+          });
+        }
+      }
+
+      // Reset input so same file can be selected again
+      event.target.value = '';
+    },
+
+    removeImage(index) {
+      this.attachedImages.splice(index, 1);
+    },
+
+    // === Image Browser Methods ===
+
+    async openImageBrowser() {
+      this.showImageBrowser = true;
+      this.imageSearchQuery = '';
+      this.imageSearchResults = [];
+      // Start browsing from projects root
+      await this.browseDirectory('');
+    },
+
+    async browseDirectory(dirPath) {
+      try {
+        const url = dirPath
+          ? `/api/files/browse?path=${encodeURIComponent(dirPath)}`
+          : '/api/files/browse';
+        const response = await fetch(url);
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Browse failed');
+        }
+
+        const data = await response.json();
+        this.browseDirectories = data.directories || [];
+        this.browseFiles = data.files || [];
+        this.browseCurrentPath = data.currentPath || '';
+
+        // Build breadcrumb path
+        this.buildBreadcrumb(data.currentPath);
+      } catch (err) {
+        console.error('Browse directory failed:', err);
+      }
+    },
+
+    buildBreadcrumb(fullPath) {
+      if (!fullPath) {
+        this.browsePath = [{ name: 'Root', path: '' }];
+        return;
+      }
+
+      const parts = fullPath.split('/').filter(Boolean);
+      this.browsePath = [];
+      let accumulated = '';
+      for (const part of parts) {
+        accumulated += '/' + part;
+        this.browsePath.push({ name: part, path: accumulated });
+      }
+    },
+
+    navigateToBrowsePath(index) {
+      if (index < 0 || index >= this.browsePath.length) return;
+      const target = this.browsePath[index];
+      this.browseDirectory(target.path);
+    },
+
+    async searchImages() {
+      if (!this.imageSearchQuery || this.imageSearchQuery.length < 2) {
+        this.imageSearchResults = [];
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/files/search?q=${encodeURIComponent(this.imageSearchQuery)}`);
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Search failed');
+        }
+
+        this.imageSearchResults = await response.json();
+      } catch (err) {
+        console.error('Image search failed:', err);
+        this.imageSearchResults = [];
+      }
+    },
+
+    selectBrowsedImage(file) {
+      // Server file — use its path directly (no re-upload needed)
+      // Check if already attached
+      if (this.attachedImages.some(img => img.path === file.path)) {
+        return; // Already attached
+      }
+
+      this.attachedImages.push({
+        id: null,
+        filename: file.name,
+        originalName: file.name,
+        name: file.name,
+        path: file.path,
+        size: file.size,
+        mimeType: file.mimeType,
+        previewUrl: '/api/files/serve?path=' + encodeURIComponent(file.path)
+      });
+
+      this.showImageBrowser = false;
     },
 
     async shutdownServer() {

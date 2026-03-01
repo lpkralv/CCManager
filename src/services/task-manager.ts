@@ -38,6 +38,7 @@ class TaskManager extends EventEmitter {
       prompt: input.prompt,
       status: "pending",
       maxBudget: input.maxBudget,
+      images: input.images,
       createdAt: new Date(),
       output: "",
     };
@@ -81,6 +82,7 @@ class TaskManager extends EventEmitter {
       cwd: project.path,
       prompt: task.prompt,
       maxBudget: task.maxBudget,
+      images: task.images,
     });
 
     this.runningTasks.set(task.id, { task, process: proc });

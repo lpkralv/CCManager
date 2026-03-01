@@ -5,6 +5,7 @@ export interface SpawnOptions {
   cwd: string;
   prompt: string;
   maxBudget?: number;
+  images?: string[];
 }
 
 export interface ProcessEvents {
@@ -35,7 +36,22 @@ export class ClaudeProcess extends EventEmitter {
       `(3) return a concise summary of progress and remaining work as your final response. ` +
       `Do not let the session end with an unhandled error — return a meaningful partial result.`;
 
-    const promptWithAdvisory = this.options.prompt + turnAdvisory;
+    const brewNote =
+      `\n\nSYSTEM NOTE: The zsh completion directories /opt/homebrew/share/zsh/ and ` +
+      `/opt/homebrew/share/zsh/site-functions/ are owned by user 'louisslothouber', not 'agenthome'. ` +
+      `Tab-completion works fine. However, if you run brew install or brew upgrade for packages that ` +
+      `include zsh completions, Homebrew may not be able to update the symlinks in site-functions/. ` +
+      `If this happens, ask the louisslothouber account to run: brew link --overwrite <package-name>`;
+
+    let imageAttachments = "";
+    if (this.options.images && this.options.images.length > 0) {
+      imageAttachments =
+        "\n\n---\nIMAGE ATTACHMENTS: The following image files have been attached to this task.\n" +
+        "Use the Read tool to view each image before starting work.\n" +
+        this.options.images.map((p) => `<image_path>${p}</image_path>`).join("\n");
+    }
+
+    const promptWithAdvisory = this.options.prompt + imageAttachments + turnAdvisory + brewNote;
 
     const args = [
       "-p",
@@ -50,6 +66,7 @@ export class ClaudeProcess extends EventEmitter {
 
     const env = { ...process.env };
     delete env.CLAUDECODE;
+    env.CLAUDE_CODE_MAX_OUTPUT_TOKENS = "100000";
 
     this.process = spawn("claude", args, {
       cwd: this.options.cwd,

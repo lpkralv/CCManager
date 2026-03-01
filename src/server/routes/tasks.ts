@@ -11,6 +11,7 @@ const CreateTaskSchema = z.object({
   projectId: z.string().min(1, "Project ID is required"),
   prompt: z.string().min(1, "Prompt cannot be empty"),
   maxBudget: z.number().positive("Max budget must be a positive number").optional().default(1.0),
+  images: z.array(z.string()).optional(),
 });
 
 // POST /api/tasks - Create new task
@@ -26,6 +27,7 @@ router.post("/", async (req: Request, res: Response) => {
       projectId: parsed.data.projectId,
       prompt: parsed.data.prompt,
       maxBudget: parsed.data.maxBudget,
+      images: parsed.data.images,
     };
 
     const task = await taskManager.createTask(input);

@@ -15,6 +15,7 @@ export const Task = z.object({
   prompt: z.string(),
   status: TaskStatus,
   maxBudget: z.number().positive().optional(),
+  images: z.array(z.string()).optional(),
   createdAt: z.coerce.date(),
   startedAt: z.coerce.date().optional(),
   completedAt: z.coerce.date().optional(),
@@ -30,6 +31,7 @@ export const CreateTaskInput = z.object({
   projectId: z.string(),
   prompt: z.string().min(1),
   maxBudget: z.number().positive().optional(),
+  images: z.array(z.string()).optional(),
 });
 export type CreateTaskInput = z.infer<typeof CreateTaskInput>;
 

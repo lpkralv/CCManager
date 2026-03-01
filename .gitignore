@@ -60,5 +60,8 @@ data/settings.json
 # Logs
 logs/
 
+# Uploaded images (temporary, used during task dispatch)
+data/uploads/
+
 # Serena
 .serena/

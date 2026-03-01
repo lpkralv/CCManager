@@ -85,18 +85,51 @@
             </div>
             <div class="form-group">
               <label for="prompt">Prompt</label>
-              <textarea
-                id="prompt"
-                x-model="taskPrompt"
-                rows="4"
-                placeholder="Enter task prompt..."
-                required
-              ></textarea>
+              <div class="prompt-drop-zone"
+                   :class="{ 'drag-over': isDraggingOver }"
+                   @dragover.prevent="isDraggingOver = true"
+                   @dragleave.prevent="isDraggingOver = false"
+                   @drop.prevent="handleImageDrop($event)">
+                <textarea
+                  id="prompt"
+                  x-model="taskPrompt"
+                  rows="4"
+                  placeholder="Enter task prompt... (drop or paste images here)"
+                  @paste="handleImagePaste($event)"
+                  required
+                ></textarea>
+                <div class="attached-images" x-show="attachedImages.length > 0">
+                  <template x-for="(img, index) in attachedImages" :key="img.id || img.path">
+                    <div class="image-chip">
+                      <img :src="img.previewUrl" :alt="img.originalName || img.name" class="image-thumb">
+                      <span class="image-name" x-text="img.originalName || img.name"></span>
+                      <button type="button" class="btn-remove" @click="removeImage(index)">&times;</button>
+                    </div>
+                  </template>
+                </div>
+                <div class="drop-overlay" x-show="isDraggingOver">
+                  Drop images here
+                </div>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary" :disabled="!taskPrompt || dispatching">
-              <span x-show="!dispatching">Dispatch Task</span>
-              <span x-show="dispatching">Dispatching...</span>
-            </button>
+            <div class="form-actions">
+              <div class="image-actions">
+                <input type="file" x-ref="imageFileInput" accept="image/*" multiple
+                       @change="handleFileSelect($event)" style="display:none">
+                <button type="button" class="btn btn-small"
+                        @click="$refs.imageFileInput.click()">
+                  Attach Image
+                </button>
+                <button type="button" class="btn btn-small"
+                        @click="openImageBrowser()">
+                  Browse Server
+                </button>
+              </div>
+              <button type="submit" class="btn btn-primary" :disabled="!taskPrompt || dispatching">
+                <span x-show="!dispatching">Dispatch Task</span>
+                <span x-show="dispatching">Dispatching...</span>
+              </button>
+            </div>
           </form>
         </section>
       </aside>
@@ -398,6 +431,66 @@
           </div>
         </div>
       </template>
+    </div>
+  </div>
+
+  <!-- Image Browser Modal -->
+  <div class="modal-backdrop" x-show="showImageBrowser" @click.self="showImageBrowser = false" @keydown.escape.window="showImageBrowser && (showImageBrowser = false)">
+    <div class="modal modal-large image-browser-modal">
+      <div class="modal-header">
+        <h2>Browse Images</h2>
+        <button class="btn btn-small" @click="showImageBrowser = false">X</button>
+      </div>
+      <div class="modal-body">
+        <div class="image-search">
+          <input type="text" x-model="imageSearchQuery"
+                 placeholder="Search for image files..."
+                 @input.debounce.300ms="searchImages()">
+        </div>
+        <div class="image-breadcrumb" x-show="!imageSearchQuery">
+          <template x-for="(part, i) in browsePath" :key="i">
+            <span>
+              <a href="#" @click.prevent="navigateToBrowsePath(i)" x-text="part.name"></a>
+              <span x-show="i < browsePath.length - 1"> / </span>
+            </span>
+          </template>
+        </div>
+        <div class="image-browser-grid" x-show="!imageSearchQuery">
+          <div class="browser-item folder" x-show="browsePath.length > 1" @click="navigateToBrowsePath(browsePath.length - 2)">
+            <div class="folder-icon">..</div>
+            <div class="item-name">Parent Directory</div>
+          </div>
+          <template x-for="dir in browseDirectories" :key="dir.path">
+            <div class="browser-item folder" @click="browseDirectory(dir.path)">
+              <div class="folder-icon">&#128193;</div>
+              <div class="item-name" x-text="dir.name"></div>
+            </div>
+          </template>
+          <template x-for="file in browseFiles" :key="file.path">
+            <div class="browser-item image" @click="selectBrowsedImage(file)">
+              <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                   class="browser-thumb" loading="lazy">
+              <div class="item-name" x-text="file.name"></div>
+            </div>
+          </template>
+          <div class="empty-state small" x-show="browseDirectories.length === 0 && browseFiles.length === 0">
+            <p>No images or folders found here.</p>
+          </div>
+        </div>
+        <div class="image-browser-grid" x-show="imageSearchQuery">
+          <template x-for="file in imageSearchResults" :key="file.path">
+            <div class="browser-item image" @click="selectBrowsedImage(file)">
+              <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                   class="browser-thumb" loading="lazy">
+              <div class="item-name" x-text="file.name"></div>
+              <div class="item-project" x-text="file.projectName || ''" x-show="file.projectName"></div>
+            </div>
+          </template>
+          <div class="empty-state small" x-show="imageSearchResults.length === 0 && imageSearchQuery">
+            <p>No images found matching "<span x-text="imageSearchQuery"></span>"</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
