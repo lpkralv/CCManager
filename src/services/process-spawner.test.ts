@@ -304,6 +304,66 @@ describe("ClaudeProcess", () => {
   });
 });
 
+describe("attachment prompt injection", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("produces IMAGE ATTACHMENTS block for image-only attachments", () => {
+    createMockProcess();
+    const proc = new ClaudeProcess({
+      ...defaultOptions,
+      images: ["/tmp/screenshot.png", "/tmp/photo.jpg"],
+    });
+    proc.start();
+
+    const args = mockSpawn.mock.calls[0]![1] as string[];
+    const promptIdx = args.indexOf("-p");
+    const prompt = args[promptIdx + 1]!;
+    expect(prompt).toContain("IMAGE ATTACHMENTS");
+    expect(prompt).toContain("<image_path>/tmp/screenshot.png</image_path>");
+    expect(prompt).toContain("<image_path>/tmp/photo.jpg</image_path>");
+    expect(prompt).not.toContain("FILE ATTACHMENTS");
+    expect(prompt).not.toContain("<file_path>");
+  });
+
+  it("produces FILE ATTACHMENTS block for non-image-only attachments", () => {
+    createMockProcess();
+    const proc = new ClaudeProcess({
+      ...defaultOptions,
+      images: ["/tmp/readme.md", "/tmp/config.json"],
+    });
+    proc.start();
+
+    const args = mockSpawn.mock.calls[0]![1] as string[];
+    const promptIdx = args.indexOf("-p");
+    const prompt = args[promptIdx + 1]!;
+    expect(prompt).toContain("FILE ATTACHMENTS");
+    expect(prompt).toContain("<file_path>/tmp/readme.md</file_path>");
+    expect(prompt).toContain("<file_path>/tmp/config.json</file_path>");
+    expect(prompt).not.toContain("IMAGE ATTACHMENTS");
+    expect(prompt).not.toContain("<image_path>");
+  });
+
+  it("produces both blocks for mixed image and non-image attachments", () => {
+    createMockProcess();
+    const proc = new ClaudeProcess({
+      ...defaultOptions,
+      images: ["/tmp/screenshot.png", "/tmp/readme.md", "/tmp/data.csv"],
+    });
+    proc.start();
+
+    const args = mockSpawn.mock.calls[0]![1] as string[];
+    const promptIdx = args.indexOf("-p");
+    const prompt = args[promptIdx + 1]!;
+    expect(prompt).toContain("IMAGE ATTACHMENTS");
+    expect(prompt).toContain("<image_path>/tmp/screenshot.png</image_path>");
+    expect(prompt).toContain("FILE ATTACHMENTS");
+    expect(prompt).toContain("<file_path>/tmp/readme.md</file_path>");
+    expect(prompt).toContain("<file_path>/tmp/data.csv</file_path>");
+  });
+});
+
 describe("spawnClaude()", () => {
   beforeEach(() => {
     vi.clearAllMocks();

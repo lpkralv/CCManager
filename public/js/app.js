@@ -785,6 +785,11 @@ function app() {
     },
 
     selectBrowsedImage(file) {
+      // Backward compat — delegate to selectBrowsedFile
+      this.selectBrowsedFile(file);
+    },
+
+    selectBrowsedFile(file) {
       // Server file — use its path directly (no re-upload needed)
       // Check if already attached
       if (this.attachedImages.some(img => img.path === file.path)) {
@@ -799,10 +804,42 @@ function app() {
         path: file.path,
         size: file.size,
         mimeType: file.mimeType,
-        previewUrl: '/api/files/serve?path=' + encodeURIComponent(file.path)
+        previewUrl: this.isImageMimeType(file.mimeType)
+          ? '/api/files/serve?path=' + encodeURIComponent(file.path)
+          : null
       });
 
       this.showImageBrowser = false;
+    },
+
+    isImageMimeType(mimeType) {
+      if (!mimeType) return true; // Backward compat: uploaded images may lack mimeType
+      return mimeType.startsWith('image/');
+    },
+
+    getFileIcon(filename) {
+      if (!filename) return '\u{1F4C4}';
+      const ext = filename.split('.').pop()?.toLowerCase() || '';
+      const iconMap = {
+        md: '\u{1F4DD}', txt: '\u{1F4DD}', log: '\u{1F4DD}',
+        json: '{ }', yaml: 'YML', yml: 'YML', toml: 'TML',
+        ts: 'TS', tsx: 'TSX', js: 'JS', jsx: 'JSX',
+        py: 'PY', sh: 'SH',
+        html: '</>',  css: 'CSS', xml: 'XML', svg: 'SVG',
+        pdf: 'PDF', csv: 'CSV',
+        zip: '\u{1F4E6}', gz: '\u{1F4E6}', tar: '\u{1F4E6}',
+        env: 'ENV', cfg: 'CFG', ini: 'INI',
+      };
+      return iconMap[ext] || '\u{1F4C4}';
+    },
+
+    downloadFile(file) {
+      const a = document.createElement('a');
+      a.href = '/api/files/download?path=' + encodeURIComponent(file.path);
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
 
     async shutdownServer() {

@@ -6,24 +6,10 @@ import { getProjectsRoot } from "../../services/settings-service.js";
 
 const router = Router();
 
-const IMAGE_EXTENSIONS = new Set([
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".gif",
-  ".webp",
-  ".svg",
-  ".bmp",
-  ".tiff",
-]);
-
-function isImageFile(filename: string): boolean {
-  return IMAGE_EXTENSIONS.has(path.extname(filename).toLowerCase());
-}
-
 function getMimeType(filename: string): string {
   const ext = path.extname(filename).toLowerCase();
   const mimeMap: Record<string, string> = {
+    // Images
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
@@ -32,6 +18,32 @@ function getMimeType(filename: string): string {
     ".svg": "image/svg+xml",
     ".bmp": "image/bmp",
     ".tiff": "image/tiff",
+    // Text / code
+    ".txt": "text/plain",
+    ".md": "text/markdown",
+    ".json": "application/json",
+    ".yaml": "text/yaml",
+    ".yml": "text/yaml",
+    ".html": "text/html",
+    ".css": "text/css",
+    ".js": "text/javascript",
+    ".ts": "text/typescript",
+    ".tsx": "text/typescript",
+    ".jsx": "text/javascript",
+    ".py": "text/x-python",
+    ".sh": "text/x-shellscript",
+    ".csv": "text/csv",
+    ".xml": "text/xml",
+    ".toml": "text/toml",
+    ".ini": "text/plain",
+    ".cfg": "text/plain",
+    ".env": "text/plain",
+    ".log": "text/plain",
+    // Documents / archives
+    ".pdf": "application/pdf",
+    ".zip": "application/zip",
+    ".gz": "application/gzip",
+    ".tar": "application/x-tar",
   };
   return mimeMap[ext] || "application/octet-stream";
 }
@@ -43,7 +55,7 @@ function isPathAllowed(filePath: string, projectsRoot: string): boolean {
   return resolved.startsWith(projectsRoot) || resolved.startsWith(dataDir);
 }
 
-// GET /api/files/browse — List directory contents (images + subdirectories)
+// GET /api/files/browse — List directory contents (all files + subdirectories)
 router.get("/browse", async (req: Request, res: Response) => {
   const projectsRoot = await getProjectsRoot();
   if (!projectsRoot) {
@@ -72,14 +84,14 @@ router.get("/browse", async (req: Request, res: Response) => {
     for (const entry of entries) {
       // Skip hidden files/dirs
       if (entry.name.startsWith(".")) continue;
-      // Skip node_modules
-      if (entry.name === "node_modules") continue;
+      // Skip node_modules, dist, .git
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".git") continue;
 
       const fullPath = path.join(resolved, entry.name);
 
       if (entry.isDirectory()) {
         directories.push({ name: entry.name, path: fullPath });
-      } else if (entry.isFile() && isImageFile(entry.name)) {
+      } else if (entry.isFile()) {
         const stat = fs.statSync(fullPath);
         files.push({
           name: entry.name,
@@ -101,7 +113,7 @@ router.get("/browse", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/files/search — Search for image files by pattern
+// GET /api/files/search — Search for files by pattern
 router.get("/search", async (req: Request, res: Response) => {
   const query = req.query.q as string;
   if (!query || query.length < 2) {
@@ -116,9 +128,8 @@ router.get("/search", async (req: Request, res: Response) => {
   }
 
   try {
-    // Search for image files matching the query
-    const extensions = Array.from(IMAGE_EXTENSIONS).map((e) => e.slice(1));
-    const pattern = `**/*${query}*.{${extensions.join(",")}}`;
+    // Search for all files matching the query
+    const pattern = `**/*${query}*`;
 
     const matches = await fg(pattern, {
       cwd: projectsRoot,
@@ -152,7 +163,7 @@ router.get("/search", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/files/serve — Serve an image file for preview
+// GET /api/files/serve — Serve a file for preview
 router.get("/serve", async (req: Request, res: Response) => {
   const filePath = req.query.path as string;
   if (!filePath) {
@@ -177,13 +188,40 @@ router.get("/serve", async (req: Request, res: Response) => {
     return;
   }
 
-  if (!isImageFile(resolved)) {
-    res.status(400).json({ error: "Not an image file" });
+  res.setHeader("Content-Type", getMimeType(resolved));
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  fs.createReadStream(resolved).pipe(res);
+});
+
+// GET /api/files/download — Download a file (triggers Save-As dialog)
+router.get("/download", async (req: Request, res: Response) => {
+  const filePath = req.query.path as string;
+  if (!filePath) {
+    res.status(400).json({ error: "Path parameter required" });
     return;
   }
 
+  const projectsRoot = await getProjectsRoot();
+  if (!projectsRoot) {
+    res.status(500).json({ error: "Projects root not configured" });
+    return;
+  }
+
+  if (!isPathAllowed(filePath, projectsRoot)) {
+    res.status(403).json({ error: "Access denied: path outside allowed directories" });
+    return;
+  }
+
+  const resolved = path.resolve(filePath);
+  if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) {
+    res.status(404).json({ error: "File not found" });
+    return;
+  }
+
+  const filename = path.basename(resolved);
   res.setHeader("Content-Type", getMimeType(resolved));
-  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.setHeader("Cache-Control", "no-cache");
   fs.createReadStream(resolved).pipe(res);
 });
 

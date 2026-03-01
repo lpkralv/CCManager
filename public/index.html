@@ -101,7 +101,12 @@
                 <div class="attached-images" x-show="attachedImages.length > 0">
                   <template x-for="(img, index) in attachedImages" :key="img.id || img.path">
                     <div class="image-chip">
-                      <img :src="img.previewUrl" :alt="img.originalName || img.name" class="image-thumb">
+                      <template x-if="isImageMimeType(img.mimeType)">
+                        <img :src="img.previewUrl" :alt="img.originalName || img.name" class="image-thumb">
+                      </template>
+                      <template x-if="!isImageMimeType(img.mimeType)">
+                        <div class="file-type-chip-icon" x-text="getFileIcon(img.originalName || img.name)"></div>
+                      </template>
                       <span class="image-name" x-text="img.originalName || img.name"></span>
                       <button type="button" class="btn-remove" @click="removeImage(index)">&times;</button>
                     </div>
@@ -434,17 +439,17 @@
     </div>
   </div>
 
-  <!-- Image Browser Modal -->
+  <!-- File Browser Modal -->
   <div class="modal-backdrop" x-show="showImageBrowser" @click.self="showImageBrowser = false" @keydown.escape.window="showImageBrowser && (showImageBrowser = false)">
     <div class="modal modal-large image-browser-modal">
       <div class="modal-header">
-        <h2>Browse Images</h2>
+        <h2>Browse Files</h2>
         <button class="btn btn-small" @click="showImageBrowser = false">X</button>
       </div>
       <div class="modal-body">
         <div class="image-search">
           <input type="text" x-model="imageSearchQuery"
-                 placeholder="Search for image files..."
+                 placeholder="Search for files..."
                  @input.debounce.300ms="searchImages()">
         </div>
         <div class="image-breadcrumb" x-show="!imageSearchQuery">
@@ -467,27 +472,39 @@
             </div>
           </template>
           <template x-for="file in browseFiles" :key="file.path">
-            <div class="browser-item image" @click="selectBrowsedImage(file)">
-              <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
-                   class="browser-thumb" loading="lazy">
+            <div class="browser-item" @click="selectBrowsedFile(file)">
+              <template x-if="isImageMimeType(file.mimeType)">
+                <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                     class="browser-thumb" loading="lazy">
+              </template>
+              <template x-if="!isImageMimeType(file.mimeType)">
+                <div class="file-type-icon" x-text="getFileIcon(file.name)"></div>
+              </template>
+              <button class="btn-download" @click.stop="downloadFile(file)">&#8681;</button>
               <div class="item-name" x-text="file.name"></div>
             </div>
           </template>
           <div class="empty-state small" x-show="browseDirectories.length === 0 && browseFiles.length === 0">
-            <p>No images or folders found here.</p>
+            <p>No files or folders found here.</p>
           </div>
         </div>
         <div class="image-browser-grid" x-show="imageSearchQuery">
           <template x-for="file in imageSearchResults" :key="file.path">
-            <div class="browser-item image" @click="selectBrowsedImage(file)">
-              <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
-                   class="browser-thumb" loading="lazy">
+            <div class="browser-item" @click="selectBrowsedFile(file)">
+              <template x-if="isImageMimeType(file.mimeType)">
+                <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                     class="browser-thumb" loading="lazy">
+              </template>
+              <template x-if="!isImageMimeType(file.mimeType)">
+                <div class="file-type-icon" x-text="getFileIcon(file.name)"></div>
+              </template>
+              <button class="btn-download" @click.stop="downloadFile(file)">&#8681;</button>
               <div class="item-name" x-text="file.name"></div>
               <div class="item-project" x-text="file.projectName || ''" x-show="file.projectName"></div>
             </div>
           </template>
           <div class="empty-state small" x-show="imageSearchResults.length === 0 && imageSearchQuery">
-            <p>No images found matching "<span x-text="imageSearchQuery"></span>"</p>
+            <p>No files found matching "<span x-text="imageSearchQuery"></span>"</p>
           </div>
         </div>
       </div>

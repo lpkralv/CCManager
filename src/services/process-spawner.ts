@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from "child_process";
 import { EventEmitter } from "events";
+import path from "path";
 
 export interface SpawnOptions {
   cwd: string;
@@ -43,15 +44,32 @@ export class ClaudeProcess extends EventEmitter {
       `include zsh completions, Homebrew may not be able to update the symlinks in site-functions/. ` +
       `If this happens, ask the louisslothouber account to run: brew link --overwrite <package-name>`;
 
-    let imageAttachments = "";
+    let attachmentBlocks = "";
     if (this.options.images && this.options.images.length > 0) {
-      imageAttachments =
-        "\n\n---\nIMAGE ATTACHMENTS: The following image files have been attached to this task.\n" +
-        "Use the Read tool to view each image before starting work.\n" +
-        this.options.images.map((p) => `<image_path>${p}</image_path>`).join("\n");
+      const imageExts = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tiff"]);
+      const imagePaths = this.options.images.filter(
+        (p) => imageExts.has(path.extname(p).toLowerCase())
+      );
+      const filePaths = this.options.images.filter(
+        (p) => !imageExts.has(path.extname(p).toLowerCase())
+      );
+
+      if (imagePaths.length > 0) {
+        attachmentBlocks +=
+          "\n\n---\nIMAGE ATTACHMENTS: The following image files have been attached to this task.\n" +
+          "Use the Read tool to view each image before starting work.\n" +
+          imagePaths.map((p) => `<image_path>${p}</image_path>`).join("\n");
+      }
+
+      if (filePaths.length > 0) {
+        attachmentBlocks +=
+          "\n\n---\nFILE ATTACHMENTS: The following files have been attached to this task.\n" +
+          "Use the Read tool to read each file before starting work.\n" +
+          filePaths.map((p) => `<file_path>${p}</file_path>`).join("\n");
+      }
     }
 
-    const promptWithAdvisory = this.options.prompt + imageAttachments + turnAdvisory + brewNote;
+    const promptWithAdvisory = this.options.prompt + attachmentBlocks + turnAdvisory + brewNote;
 
     const args = [
       "-p",
