@@ -56,6 +56,10 @@ function app() {
     showTaskOutput: false,
     selectedTaskOutput: null,
 
+    // ToDo list
+    todoItems: [],
+    expandedTodoId: null,
+
     // Settings
     showSettings: false,
     loadingSettings: false,
@@ -71,6 +75,7 @@ function app() {
         this.loadTaskHistory(),
         this.loadSettings(),
         this.loadVersion(),
+        this.loadTodos(),
       ]);
       // Recalculate needsSetup after both settings and projects are loaded
       this.recalcNeedsSetup();
@@ -94,11 +99,28 @@ function app() {
     },
 
     async refreshProjects() {
-      const promises = [this.loadProjects()];
+      const promises = [this.loadProjects(), this.loadTodos()];
       if (this.showSummary) {
         promises.push(this.loadProjectsSummary());
       }
       await Promise.all(promises);
+    },
+
+    async loadTodos() {
+      try {
+        const response = await fetch('/api/todos');
+        this.todoItems = await response.json();
+      } catch (err) {
+        console.error('Failed to load todos:', err);
+      }
+    },
+
+    selectProjectById(projectId) {
+      const project = this.projects.find(p => p.id === projectId);
+      if (project) {
+        this.selectedProjects = [project];
+        this.lastSelectedIndex = this.projects.indexOf(project);
+      }
     },
 
     async loadProjects() {

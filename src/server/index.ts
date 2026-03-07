@@ -2,6 +2,7 @@ import { createServer } from "http";
 import dotenv from "dotenv";
 import { createApp } from "./app.js";
 import { setupWebSocket } from "./websocket/index.js";
+import { startAutoDispatch } from "../services/auto-dispatch.js";
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +14,9 @@ const PORT = process.env.PORT ?? 3000;
 
 // Setup WebSocket server
 setupWebSocket(server);
+
+// Start auto-dispatch for do-work queues
+startAutoDispatch();
 
 // Start server
 server.listen(PORT, () => {

@@ -4,6 +4,7 @@ import tasksRouter from "./tasks.js";
 import settingsRouter from "./settings.js";
 import uploadsRouter from "./uploads.js";
 import filesRouter from "./files.js";
+import todosRouter from "./todos.js";
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use("/tasks", tasksRouter);
 router.use("/settings", settingsRouter);
 router.use("/uploads", uploadsRouter);
 router.use("/files", filesRouter);
+router.use("/todos", todosRouter);
 
 export default router;

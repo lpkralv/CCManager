@@ -137,6 +137,26 @@
             </div>
           </form>
         </section>
+
+        <section class="card" x-show="todoItems.length > 0">
+          <div class="card-header">
+            <h2>To-Do List</h2>
+            <button class="btn-refresh" @click="loadTodos()" title="Refresh to-do list">&#x21bb;</button>
+          </div>
+          <ul class="todo-list">
+            <template x-for="item in todoItems" :key="item.projectId">
+              <li class="todo-item" :class="['todo-' + item.priority, expandedTodoId === item.projectId ? 'todo-expanded' : '']"
+                  @click="expandedTodoId = expandedTodoId === item.projectId ? null : item.projectId">
+                <span class="todo-priority-dot" :class="'dot-' + item.priority"></span>
+                <div class="todo-content">
+                  <span class="todo-project" x-text="item.projectName"></span>
+                  <span class="todo-step" :class="{ 'todo-step-expanded': expandedTodoId === item.projectId }" x-text="item.nextStep"></span>
+                  <span class="todo-time" x-show="item.lastActivityLabel" x-text="item.lastActivityLabel"></span>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </section>
       </aside>
 
       <!-- Center Panel: Active Tasks -->
@@ -150,6 +170,7 @@
                   <div>
                     <span class="task-project" x-text="getProjectName(task.projectId)"></span>
                     <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                    <span class="task-auto-badge" x-show="task.auto">AUTO</span>
                   </div>
                   <button
                     class="btn btn-small btn-danger"
@@ -182,6 +203,7 @@
                   <div>
                     <span class="task-project" x-text="getProjectName(task.projectId)"></span>
                     <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                    <span class="task-auto-badge" x-show="task.auto">AUTO</span>
                   </div>
                   <div class="task-header-actions">
                     <button

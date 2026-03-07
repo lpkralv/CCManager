@@ -24,6 +24,7 @@ export const Task = z.object({
   output: z.string().default(""),
   error: z.string().optional(),
   retryCount: z.number().int().nonnegative().optional(),
+  auto: z.boolean().optional(),
 });
 export type Task = z.infer<typeof Task>;
 
@@ -32,6 +33,7 @@ export const CreateTaskInput = z.object({
   prompt: z.string().min(1),
   maxBudget: z.number().positive().optional(),
   images: z.array(z.string()).optional(),
+  auto: z.boolean().optional(),
 });
 export type CreateTaskInput = z.infer<typeof CreateTaskInput>;
 

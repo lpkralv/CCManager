@@ -41,6 +41,7 @@ class TaskManager extends EventEmitter {
       images: input.images,
       createdAt: new Date(),
       output: "",
+      auto: input.auto,
     };
 
     this.pendingTasks.push(task);

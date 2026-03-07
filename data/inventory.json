@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-01T01:16:21.920Z",
+  "lastUpdated": "2026-03-07T05:02:58.416Z",
   "projects": [
     {
       "id": "claude-code-manager",
@@ -1146,6 +1146,48 @@
         "hasClaudeMd": true,
         "lastScanned": "2026-03-01T01:16:21.920Z",
         "lastModified": "2026-03-01T01:16:21.920Z"
+      }
+    },
+    {
+      "id": "s-videooverair",
+      "name": "S-VideoOverAir",
+      "path": "/Volumes/Sheridan/sandbox/S-VideoOverAir",
+      "description": "I have a new Commodore 64 Ultimate computer. I want to use it in the living room sitting on the sofa, but I don’t ant to use my big screen TV as the monitor. But I don’t want to run a cable across the room. I’d like to use a Pi Pico 2W as a sender of S-video over WiFi, and another as receiver. There are several Pi Hats that generate HTML output. The Pi Zero also outputs Composite video, so that would also be acceptable. Please investigate what solutions have already been developed or could be adapted for this use case. Then design a solution. ",
+      "projectType": "utility",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "python",
+        "buildSystem": "scripts"
+      },
+      "git": {
+        "initialized": true,
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": false
+        },
+        "directories": {
+          "src": false,
+          "docs": false,
+          "tests": false,
+          "background": false
+        }
+      },
+      "relationships": [
+        {
+          "type": "part-of",
+          "targetProject": "ccstartup",
+          "description": "Instance of CCSTARTUP template"
+        }
+      ],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-03-07T05:02:58.415Z",
+        "lastModified": "2026-03-07T05:02:58.415Z"
       }
     }
   ]
