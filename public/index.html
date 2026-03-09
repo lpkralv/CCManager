@@ -52,6 +52,7 @@
             <h2>Projects</h2>
             <div class="card-header-actions">
               <button class="btn-refresh" @click="refreshProjects()" title="Refresh projects">&#x21bb;</button>
+              <button class="btn btn-small" @click="selectAllProjects()">ALL</button>
               <button class="btn btn-small" @click="showNewProject = true">+ New</button>
             </div>
           </div>
@@ -140,8 +141,8 @@
 
         <section class="card" x-show="todoItems.length > 0">
           <div class="card-header">
-            <h2>To-Do List</h2>
-            <button class="btn-refresh" @click="loadTodos()" title="Refresh to-do list">&#x21bb;</button>
+            <h2>Project Insights</h2>
+            <button class="btn-refresh" @click="loadTodos()" title="Refresh insights">&#x21bb;</button>
           </div>
           <ul class="todo-list">
             <template x-for="item in todoItems" :key="item.projectId">
@@ -149,9 +150,15 @@
                   @click="expandedTodoId = expandedTodoId === item.projectId ? null : item.projectId">
                 <span class="todo-priority-dot" :class="'dot-' + item.priority"></span>
                 <div class="todo-content">
-                  <span class="todo-project" x-text="item.projectName"></span>
+                  <div class="todo-header-row">
+                    <span class="todo-project" x-text="item.projectName"></span>
+                    <span class="todo-phase" x-text="item.phase"></span>
+                  </div>
+                  <span class="todo-git-alert" x-show="item.gitAlert" x-text="item.gitAlert"></span>
                   <span class="todo-step" :class="{ 'todo-step-expanded': expandedTodoId === item.projectId }" x-text="item.nextStep"></span>
-                  <span class="todo-time" x-show="item.lastActivityLabel" x-text="item.lastActivityLabel"></span>
+                  <div class="todo-footer" x-show="expandedTodoId === item.projectId">
+                    <span class="todo-confidence" :class="'confidence-' + item.confidence" x-text="'Confidence: ' + item.confidence"></span>
+                  </div>
                 </div>
               </li>
             </template>

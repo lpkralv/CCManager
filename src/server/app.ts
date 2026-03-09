@@ -61,9 +61,12 @@ export function createApp(): express.Express {
   // API routes
   app.use("/api", apiRoutes);
 
-  // Catch-all for SPA (serve index.html for non-API routes)
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(publicPath, "index.html"));
+  // Catch-all for SPA — detect mobile User-Agent and serve mobile.html
+  app.get("*", (req, res) => {
+    const ua = req.headers["user-agent"] || "";
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(ua);
+    const file = isMobile ? "mobile.html" : "index.html";
+    res.sendFile(path.join(publicPath, file));
   });
 
   // Error handling middleware

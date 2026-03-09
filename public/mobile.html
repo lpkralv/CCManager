@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Claude Code Manager</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="/css/mobile.css">
+</head>
+<body x-data="mobileApp()" x-init="init()">
+
+  <!-- Navigation Stack: only show the top page -->
+
+  <!-- Top Bar -->
+  <header class="mobile-header">
+    <template x-if="navStack.length > 0">
+      <button class="back-btn" @click="navBack()">&larr;</button>
+    </template>
+    <h1 class="mobile-title" x-text="currentPageTitle()"></h1>
+    <div class="header-status">
+      <span class="dot" :class="connected ? 'connected' : 'disconnected'"></span>
+      <span class="header-counts" x-show="runningCount > 0 || pendingCount > 0">
+        <span x-show="runningCount > 0" x-text="runningCount + ' running'"></span>
+        <span x-show="runningCount > 0 && pendingCount > 0"> · </span>
+        <span x-show="pendingCount > 0" x-text="pendingCount + ' pending'"></span>
+      </span>
+    </div>
+  </header>
+
+  <!-- Page Content Area -->
+  <div class="page-content">
+
+    <!-- ===== TAB: Projects ===== -->
+    <div class="page" x-show="currentPage() === 'projects'" x-cloak>
+      <!-- Setup Banner -->
+      <div class="setup-banner-mobile" x-show="needsSetup">
+        <h3>Welcome to Claude Code Manager</h3>
+        <p>Configure the folder where your projects live.</p>
+        <button class="btn btn-primary" @click="navPush('settings')">Configure</button>
+      </div>
+
+      <div class="page-section">
+        <div class="section-header">
+          <h2>Projects</h2>
+          <div class="section-actions">
+            <button class="btn-icon" @click="refreshProjects()" title="Refresh">&#x21bb;</button>
+            <button class="btn btn-small" @click="navPush('new-project')">+ New</button>
+          </div>
+        </div>
+        <div class="project-list-mobile">
+          <template x-for="project in projects" :key="project.id">
+            <div
+              class="project-item-mobile"
+              :class="{ 'selected': isProjectSelected(project) }"
+              @click="handleProjectClick(project, $event)"
+            >
+              <div class="project-info-mobile">
+                <span class="project-name-mobile" x-text="project.name"></span>
+                <span class="project-status" :class="'status-' + project.status" x-text="project.status"></span>
+              </div>
+              <button
+                class="btn-icon btn-info-mobile"
+                @click.stop="navPush('project-details'); loadProjectDetails(project.id)"
+                title="View details"
+              >i</button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Dispatch Task (inline when project selected) -->
+      <div class="page-section" x-show="hasSelection()">
+        <h2>Dispatch Task</h2>
+        <form @submit.prevent="dispatchTask()">
+          <div class="form-group">
+            <label>Project<span x-show="selectedProjects.length > 1">s</span></label>
+            <input type="text" :value="getSelectedProjectNames()" disabled>
+          </div>
+          <div class="form-group">
+            <label for="prompt">Prompt</label>
+            <div class="prompt-drop-zone"
+                 :class="{ 'drag-over': isDraggingOver }"
+                 @dragover.prevent="isDraggingOver = true"
+                 @dragleave.prevent="isDraggingOver = false"
+                 @drop.prevent="handleImageDrop($event)">
+              <textarea
+                id="prompt"
+                x-model="taskPrompt"
+                rows="4"
+                placeholder="Enter task prompt..."
+                @paste="handleImagePaste($event)"
+                required
+              ></textarea>
+              <div class="attached-images" x-show="attachedImages.length > 0">
+                <template x-for="(img, index) in attachedImages" :key="img.id || img.path">
+                  <div class="image-chip">
+                    <template x-if="isImageMimeType(img.mimeType)">
+                      <img :src="img.previewUrl" :alt="img.originalName || img.name" class="image-thumb">
+                    </template>
+                    <template x-if="!isImageMimeType(img.mimeType)">
+                      <div class="file-type-chip-icon" x-text="getFileIcon(img.originalName || img.name)"></div>
+                    </template>
+                    <span class="image-name" x-text="img.originalName || img.name"></span>
+                    <button type="button" class="btn-remove" @click="removeImage(index)">&times;</button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions-mobile">
+            <div class="image-actions">
+              <input type="file" x-ref="imageFileInput" accept="image/*" multiple
+                     @change="handleFileSelect($event)" style="display:none">
+              <button type="button" class="btn btn-small"
+                      @click="$refs.imageFileInput.click()">Attach</button>
+              <button type="button" class="btn btn-small"
+                      @click="navPush('file-browser'); openImageBrowserData()">Browse</button>
+            </div>
+            <button type="submit" class="btn btn-primary" :disabled="!taskPrompt || dispatching">
+              <span x-show="!dispatching">Dispatch</span>
+              <span x-show="dispatching">...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== TAB: Active Tasks ===== -->
+    <div class="page" x-show="currentPage() === 'active'" x-cloak>
+      <div class="page-section">
+        <h2>Active Tasks</h2>
+        <div class="tasks-list-mobile" x-show="activeTasks.length > 0">
+          <template x-for="task in activeTasks" :key="task.id">
+            <div class="task-card-mobile" :class="'task-' + task.status">
+              <div class="task-header-mobile">
+                <div>
+                  <span class="task-project" x-text="getProjectName(task.projectId)"></span>
+                  <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                  <span class="task-auto-badge" x-show="task.auto">AUTO</span>
+                </div>
+                <button
+                  class="btn btn-small btn-danger"
+                  @click="cancelTask(task.id)"
+                  x-show="task.status === 'pending' || task.status === 'running'"
+                >Cancel</button>
+              </div>
+              <div class="task-prompt-mobile" x-text="task.prompt"></div>
+              <div class="task-output-mobile" x-show="task.status === 'running'" @click="navPush('task-output-live'); selectedLiveTask = task">
+                <pre x-text="truncate(task.output || 'Waiting for output...', 200)"></pre>
+                <span class="tap-hint" x-show="task.output && task.output.length > 200">Tap to expand</span>
+              </div>
+              <div class="task-meta">
+                <span x-text="formatTime(task.createdAt)"></span>
+                <span x-show="task.durationMs" x-text="formatDuration(task.durationMs)"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="activeTasks.length === 0">
+          <p>No active tasks.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: History ===== -->
+    <div class="page" x-show="currentPage() === 'history'" x-cloak>
+      <div class="page-section">
+        <h2>Task History</h2>
+        <div class="tasks-list-mobile" x-show="taskHistory.length > 0">
+          <template x-for="task in taskHistory.slice(0, 20)" :key="task.id">
+            <div class="task-card-mobile task-history-mobile" :class="'task-' + task.status"
+                 @click="viewTaskOutput(task); navPush('task-output')">
+              <div class="task-header-mobile">
+                <div>
+                  <span class="task-project" x-text="getProjectName(task.projectId)"></span>
+                  <span class="task-status" :class="'status-' + task.status" x-text="task.status"></span>
+                  <span class="task-auto-badge" x-show="task.auto">AUTO</span>
+                </div>
+                <div class="task-header-actions">
+                  <button
+                    class="btn btn-small btn-fix"
+                    x-show="task.status === 'failed'"
+                    @click.stop="dispatchFixTask(task)"
+                  >Fix</button>
+                </div>
+              </div>
+              <div class="task-prompt-mobile" x-text="truncate(task.prompt, 80)"></div>
+              <div class="task-error-preview" x-show="task.error" x-text="truncate(task.error, 80)"></div>
+              <div class="task-meta">
+                <span x-text="formatTime(task.completedAt || task.createdAt)"></span>
+                <span x-show="task.durationMs" x-text="formatDuration(task.durationMs)"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="taskHistory.length === 0">
+          <p>No completed tasks yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: More (Insights, Summary, Settings, Stop) ===== -->
+    <div class="page" x-show="currentPage() === 'more'" x-cloak>
+      <!-- Project Insights -->
+      <div class="page-section" x-show="todoItems.length > 0">
+        <div class="section-header">
+          <h2>Project Insights</h2>
+          <button class="btn-icon" @click="loadTodos()" title="Refresh">&#x21bb;</button>
+        </div>
+        <ul class="todo-list">
+          <template x-for="item in todoItems" :key="item.projectId">
+            <li class="todo-item" :class="['todo-' + item.priority, expandedTodoId === item.projectId ? 'todo-expanded' : '']"
+                @click="expandedTodoId = expandedTodoId === item.projectId ? null : item.projectId">
+              <span class="todo-priority-dot" :class="'dot-' + item.priority"></span>
+              <div class="todo-content">
+                <div class="todo-header-row">
+                  <span class="todo-project" x-text="item.projectName"></span>
+                  <span class="todo-phase" x-text="item.phase"></span>
+                </div>
+                <span class="todo-git-alert" x-show="item.gitAlert" x-text="item.gitAlert"></span>
+                <span class="todo-step" :class="{ 'todo-step-expanded': expandedTodoId === item.projectId }" x-text="item.nextStep"></span>
+                <div class="todo-footer" x-show="expandedTodoId === item.projectId">
+                  <span class="todo-confidence" :class="'confidence-' + item.confidence" x-text="'Confidence: ' + item.confidence"></span>
+                </div>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="page-section">
+        <h2>Actions</h2>
+        <div class="action-list">
+          <button class="action-item" @click="navPush('summary'); loadProjectsSummary()">
+            <span class="action-icon">&#128202;</span>
+            <span>Projects Summary</span>
+          </button>
+          <button class="action-item" @click="navPush('settings')">
+            <span class="action-icon">&#9881;</span>
+            <span>Settings</span>
+          </button>
+          <button class="action-item action-danger" @click="shutdownServer()">
+            <span class="action-icon">&#9724;</span>
+            <span>Stop Server</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL PAGE: Project Details ===== -->
+    <div class="page" x-show="currentPage() === 'project-details'" x-cloak>
+      <div class="page-section">
+        <div class="loading-state" x-show="loadingDetails">
+          <p>Loading project details...</p>
+        </div>
+
+        <div x-show="!loadingDetails && projectDetails">
+          <section class="detail-section">
+            <h3>Git Status</h3>
+            <div class="git-status-mobile">
+              <div class="git-item-mobile">
+                <span class="git-label">Branch:</span>
+                <strong x-text="projectDetails?.git?.localBranch"></strong>
+              </div>
+              <div class="git-item-mobile" x-show="projectDetails?.git?.ahead > 0">
+                <span class="git-ahead">+<span x-text="projectDetails?.git?.ahead"></span> ahead</span>
+              </div>
+              <div class="git-item-mobile" x-show="projectDetails?.git?.behind > 0">
+                <span class="git-behind">-<span x-text="projectDetails?.git?.behind"></span> behind</span>
+              </div>
+              <div class="git-item-mobile" x-show="!projectDetails?.git?.isClean">
+                <span class="git-dirty"><span x-text="projectDetails?.git?.uncommittedChanges"></span> uncommitted</span>
+              </div>
+              <div class="git-item-mobile" x-show="projectDetails?.git?.isClean">
+                <span class="git-clean">Clean</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="detail-section">
+            <h3>Recent Commits</h3>
+            <div class="commits-list-mobile">
+              <template x-for="commit in projectDetails?.recentCommits" :key="commit.hash">
+                <div class="commit-item-mobile">
+                  <div class="commit-top">
+                    <span class="commit-hash" x-text="commit.hash.slice(0,7)"></span>
+                    <span class="commit-date" x-text="formatDate(commit.date)"></span>
+                  </div>
+                  <div class="commit-message-mobile" x-text="commit.message"></div>
+                </div>
+              </template>
+              <div class="empty-state" x-show="!projectDetails?.recentCommits?.length">
+                <p>No commits found</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL PAGE: Task Output ===== -->
+    <div class="page" x-show="currentPage() === 'task-output'" x-cloak>
+      <template x-if="selectedTaskOutput">
+        <div class="page-section">
+          <div class="task-output-meta-mobile">
+            <span class="task-project" x-text="getProjectName(selectedTaskOutput.projectId)"></span>
+            <span class="task-status" :class="'status-' + selectedTaskOutput.status" x-text="selectedTaskOutput.status"></span>
+            <span class="task-output-duration" x-show="selectedTaskOutput.durationMs" x-text="formatDuration(selectedTaskOutput.durationMs)"></span>
+          </div>
+
+          <div class="detail-section">
+            <h3>Prompt</h3>
+            <p class="task-prompt-full" x-text="selectedTaskOutput.prompt"></p>
+          </div>
+
+          <div class="detail-section">
+            <h3>Output</h3>
+            <div class="task-output-content-mobile">
+              <pre x-text="selectedTaskOutput.output || 'No output captured.'"></pre>
+            </div>
+          </div>
+
+          <div class="detail-section" x-show="selectedTaskOutput.error">
+            <h3 class="error-heading">Error Output</h3>
+            <div class="task-output-content-mobile task-error-content">
+              <pre x-text="selectedTaskOutput.error"></pre>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ===== DETAIL PAGE: Live Task Output ===== -->
+    <div class="page" x-show="currentPage() === 'task-output-live'" x-cloak>
+      <template x-if="selectedLiveTask">
+        <div class="page-section">
+          <div class="task-output-meta-mobile">
+            <span class="task-project" x-text="getProjectName(selectedLiveTask.projectId)"></span>
+            <span class="task-status" :class="'status-' + selectedLiveTask.status" x-text="selectedLiveTask.status"></span>
+          </div>
+          <div class="detail-section">
+            <h3>Prompt</h3>
+            <p class="task-prompt-full" x-text="selectedLiveTask.prompt"></p>
+          </div>
+          <div class="detail-section">
+            <h3>Live Output</h3>
+            <div class="task-output-content-mobile">
+              <pre x-text="selectedLiveTask.output || 'Waiting for output...'"></pre>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ===== DETAIL PAGE: New Project ===== -->
+    <div class="page" x-show="currentPage() === 'new-project'" x-cloak>
+      <div class="page-section">
+        <h2>Create New Project</h2>
+        <form @submit.prevent="createProjectMobile()">
+          <div class="form-group">
+            <label for="projectName">Project Name</label>
+            <input type="text" id="projectName" x-model="newProjectName" placeholder="My New Project" required>
+          </div>
+          <div class="form-group">
+            <label for="projectDesc">Description</label>
+            <textarea id="projectDesc" x-model="newProjectDesc" rows="3" maxlength="2000"
+                      placeholder="A brief description" required></textarea>
+          </div>
+          <div class="form-actions-mobile">
+            <button type="button" class="btn" @click="navBack()">Cancel</button>
+            <button type="submit" class="btn btn-primary" :disabled="creatingProject">
+              <span x-show="!creatingProject">Create</span>
+              <span x-show="creatingProject">Creating...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL PAGE: Summary ===== -->
+    <div class="page" x-show="currentPage() === 'summary'" x-cloak>
+      <div class="page-section">
+        <h2>Projects Summary</h2>
+        <div class="loading-state" x-show="loadingSummary">
+          <p>Loading...</p>
+        </div>
+        <div class="summary-list-mobile" x-show="!loadingSummary && projectsSummary.length > 0">
+          <template x-for="p in projectsSummary" :key="p.id">
+            <div class="summary-card-mobile" @click="navPush('project-details'); loadProjectDetails(p.id)">
+              <div class="summary-card-header">
+                <span class="summary-name-mobile" x-text="p.name"></span>
+                <span class="project-status" :class="'status-' + p.status" x-text="p.status"></span>
+              </div>
+              <div class="summary-card-row">
+                <span class="git-label">Branch:</span>
+                <code class="summary-branch" x-text="p.gitBranch"></code>
+                <span x-show="p.isClean" class="git-clean">Clean</span>
+                <span x-show="!p.isClean" class="git-dirty" x-text="p.uncommittedChanges + ' changed'"></span>
+              </div>
+              <div class="summary-card-row" x-show="p.lastCommitMessage">
+                <span class="commit-message-text" x-text="truncate(p.lastCommitMessage, 60)"></span>
+                <span class="commit-date-text" x-show="p.lastCommitDate" x-text="formatRelativeDate(p.lastCommitDate)"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="!loadingSummary && projectsSummary.length === 0">
+          <p>No projects found.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL PAGE: Settings ===== -->
+    <div class="page" x-show="currentPage() === 'settings'" x-cloak>
+      <div class="page-section">
+        <h2>Settings</h2>
+        <form @submit.prevent="saveSettingsMobile()">
+          <div class="form-group">
+            <label for="settingsProjectsRoot">Projects Root Folder</label>
+            <input type="text" id="settingsProjectsRoot" x-model="settingsForm.projectsRoot"
+                   placeholder="/Users/you/projects" required>
+            <p class="form-hint">The folder containing your Claude Code project folders.</p>
+            <p class="form-hint" x-show="settingsSource === 'env'">
+              Currently overridden by <code>PROJECTS_ROOT</code> env var.
+            </p>
+          </div>
+          <div class="form-actions-mobile">
+            <button type="button" class="btn" @click="navBack()">Cancel</button>
+            <button type="submit" class="btn btn-primary" :disabled="savingSettings || !settingsForm.projectsRoot">
+              <span x-show="!savingSettings">Save</span>
+              <span x-show="savingSettings">Saving...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL PAGE: File Browser ===== -->
+    <div class="page" x-show="currentPage() === 'file-browser'" x-cloak>
+      <div class="page-section">
+        <h2>Browse Files</h2>
+        <div class="image-search">
+          <input type="text" x-model="imageSearchQuery"
+                 placeholder="Search for files..."
+                 @input.debounce.300ms="searchImages()">
+        </div>
+        <div class="image-breadcrumb" x-show="!imageSearchQuery">
+          <template x-for="(part, i) in browsePath" :key="i">
+            <span>
+              <a href="#" @click.prevent="navigateToBrowsePath(i)" x-text="part.name"></a>
+              <span x-show="i < browsePath.length - 1"> / </span>
+            </span>
+          </template>
+        </div>
+        <div class="file-browser-grid-mobile" x-show="!imageSearchQuery">
+          <div class="browser-item-mobile folder" x-show="browsePath.length > 1" @click="navigateToBrowsePath(browsePath.length - 2)">
+            <div class="folder-icon">..</div>
+            <div class="item-name">Parent</div>
+          </div>
+          <template x-for="dir in browseDirectories" :key="dir.path">
+            <div class="browser-item-mobile folder" @click="browseDirectory(dir.path)">
+              <div class="folder-icon">&#128193;</div>
+              <div class="item-name" x-text="dir.name"></div>
+            </div>
+          </template>
+          <template x-for="file in browseFiles" :key="file.path">
+            <div class="browser-item-mobile" @click="selectBrowsedFile(file); navBack()">
+              <template x-if="isImageMimeType(file.mimeType)">
+                <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                     class="browser-thumb-mobile" loading="lazy">
+              </template>
+              <template x-if="!isImageMimeType(file.mimeType)">
+                <div class="file-type-icon-mobile" x-text="getFileIcon(file.name)"></div>
+              </template>
+              <div class="item-name" x-text="file.name"></div>
+            </div>
+          </template>
+          <div class="empty-state" x-show="browseDirectories.length === 0 && browseFiles.length === 0">
+            <p>No files found here.</p>
+          </div>
+        </div>
+        <div class="file-browser-grid-mobile" x-show="imageSearchQuery">
+          <template x-for="file in imageSearchResults" :key="file.path">
+            <div class="browser-item-mobile" @click="selectBrowsedFile(file); navBack()">
+              <template x-if="isImageMimeType(file.mimeType)">
+                <img :src="'/api/files/serve?path=' + encodeURIComponent(file.path)"
+                     class="browser-thumb-mobile" loading="lazy">
+              </template>
+              <template x-if="!isImageMimeType(file.mimeType)">
+                <div class="file-type-icon-mobile" x-text="getFileIcon(file.name)"></div>
+              </template>
+              <div class="item-name" x-text="file.name"></div>
+            </div>
+          </template>
+          <div class="empty-state" x-show="imageSearchResults.length === 0 && imageSearchQuery">
+            <p>No files found.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-item" :class="{ active: activeTab === 'projects' }" @click="switchTab('projects')">
+      <span class="tab-icon">&#128193;</span>
+      <span class="tab-label">Projects</span>
+    </button>
+    <button class="tab-item" :class="{ active: activeTab === 'active' }" @click="switchTab('active')">
+      <span class="tab-icon">&#9654;</span>
+      <span class="tab-label">Active</span>
+      <span class="tab-badge" x-show="activeTasks.length > 0" x-text="activeTasks.length"></span>
+    </button>
+    <button class="tab-item" :class="{ active: activeTab === 'history' }" @click="switchTab('history')">
+      <span class="tab-icon">&#128337;</span>
+      <span class="tab-label">History</span>
+    </button>
+    <button class="tab-item" :class="{ active: activeTab === 'more' }" @click="switchTab('more')">
+      <span class="tab-icon">&#8943;</span>
+      <span class="tab-label">More</span>
+    </button>
+  </nav>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/mobile-app.js"></script>
+</body>
+</html>

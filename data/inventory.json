@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-07T05:02:58.416Z",
+  "lastUpdated": "2026-03-08T00:00:00.000Z",
   "projects": [
     {
       "id": "claude-code-manager",
@@ -1188,6 +1188,126 @@
         "hasClaudeMd": true,
         "lastScanned": "2026-03-07T05:02:58.415Z",
         "lastModified": "2026-03-07T05:02:58.415Z"
+      }
+    },
+    {
+      "id": "natebrainmcp",
+      "name": "NateBrainMCP",
+      "path": "/Volumes/Sheridan/sandbox/NateBrainMCP",
+      "description": "Open Brain MCP server - a database-backed, AI-accessible knowledge system providing semantic vector search over personal context items via the Model Context Protocol",
+      "projectType": "python",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "python",
+        "runtime": "python",
+        "versions": {
+          "runtime": "3.11+"
+        },
+        "packageManager": "pip",
+        "testFramework": "pytest",
+        "dependencies": {
+          "core": [
+            {
+              "name": "pgvector",
+              "purpose": "Vector database"
+            },
+            {
+              "name": "voyageai",
+              "purpose": "Vector embeddings"
+            }
+          ],
+          "dev": [
+            {
+              "name": "pytest"
+            },
+            {
+              "name": "ruff"
+            }
+          ]
+        }
+      },
+      "git": {
+        "initialized": true,
+        "remoteUrl": "https://github.com/lpkralv/NateBrainMCP.git",
+        "owner": "lpkralv",
+        "repoName": "NateBrainMCP",
+        "defaultBranch": "master"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": false
+        },
+        "directories": {
+          "src": true,
+          "docs": true,
+          "tests": true,
+          "background": true
+        }
+      },
+      "relationships": [],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-03-08T00:00:00.000Z",
+        "lastModified": "2026-03-08T00:00:00.000Z"
+      }
+    },
+    {
+      "id": "simple-macropad",
+      "name": "Simple_MacroPad",
+      "path": "/Volumes/Sheridan/sandbox/Simple_MacroPad",
+      "description": "QMK + VIAL firmware for a 6-key USB HID macropad built on the Waveshare RP2040 Zero with configurable key bindings via VIAL GUI",
+      "projectType": "embedded",
+      "status": "active",
+      "technology": {
+        "primaryLanguage": "c",
+        "framework": "qmk",
+        "runtime": "rp2040",
+        "buildSystem": "qmk"
+      },
+      "git": {
+        "initialized": true,
+        "remoteUrl": "https://github.com/lpkralv/Simple_MacroPad.git",
+        "owner": "lpkralv",
+        "repoName": "Simple_MacroPad",
+        "defaultBranch": "main"
+      },
+      "configuration": {
+        "files": {
+          "claudeMd": true,
+          "mcpJson": true,
+          "gitignore": true,
+          "readme": true
+        },
+        "directories": {
+          "src": true,
+          "docs": true,
+          "tests": false,
+          "background": true
+        }
+      },
+      "constraints": {
+        "mcu": {
+          "name": "RP2040",
+          "clockSpeed": "133 MHz",
+          "voltage": "3.3V"
+        },
+        "memory": {
+          "flash": {
+            "total": 2097152
+          },
+          "ram": {
+            "total": 270336
+          }
+        }
+      },
+      "relationships": [],
+      "metadata": {
+        "hasClaudeMd": true,
+        "lastScanned": "2026-03-08T00:00:00.000Z",
+        "lastModified": "2026-03-08T00:00:00.000Z"
       }
     }
   ]

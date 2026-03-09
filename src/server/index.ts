@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { createApp } from "./app.js";
 import { setupWebSocket } from "./websocket/index.js";
 import { startAutoDispatch } from "../services/auto-dispatch.js";
+import { startMaintenanceScheduler } from "../services/maintenance-scheduler.js";
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +18,9 @@ setupWebSocket(server);
 
 // Start auto-dispatch for do-work queues
 startAutoDispatch();
+
+// Start daily maintenance scheduler (rebuilds project-insights.json, etc.)
+startMaintenanceScheduler();
 
 // Start server
 server.listen(PORT, () => {

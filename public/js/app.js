@@ -369,6 +369,7 @@ function app() {
 
     getSelectedProjectNames() {
       if (this.selectedProjects.length === 0) return '';
+      if (this.selectedProjects.length === this.projects.length && this.projects.length > 1) return 'ALL';
       if (this.selectedProjects.length === 1) return this.selectedProjects[0].name;
       if (this.selectedProjects.length <= 3) {
         return this.selectedProjects.map(p => p.name).join(', ');
@@ -378,6 +379,11 @@ function app() {
 
     hasSelection() {
       return this.selectedProjects.length > 0;
+    },
+
+    selectAllProjects() {
+      this.selectedProjects = [...this.projects];
+      this.lastSelectedIndex = this.projects.length - 1;
     },
 
     async dispatchTask() {
