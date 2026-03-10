@@ -12,11 +12,29 @@ const CreateProjectSchema = z.object({
   description: z.string().min(1, "Description is required").max(2000, "Description must be 2000 characters or less"),
 });
 
-// GET /api/projects - List all projects
+// GET /api/projects - List all projects, sorted by most recent git activity
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const projects = await getAllProjects();
-    res.json(projects);
+
+    // Get latest commit date for each project in parallel
+    const projectsWithDates = await Promise.all(
+      projects.map(async (project) => {
+        const commits = await getRecentCommits(project.path, 1).catch(() => []);
+        const latestDate = commits[0]?.date ?? "";
+        return { project, latestDate };
+      })
+    );
+
+    // Sort by latest commit date descending (most recent first)
+    projectsWithDates.sort((a, b) => {
+      if (!a.latestDate && !b.latestDate) return 0;
+      if (!a.latestDate) return 1;
+      if (!b.latestDate) return -1;
+      return new Date(b.latestDate).getTime() - new Date(a.latestDate).getTime();
+    });
+
+    res.json(projectsWithDates.map((p) => p.project));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     res.status(500).json({ error: message });
@@ -42,6 +60,7 @@ router.get("/summary", async (_req: Request, res: Response) => {
             ahead: 0,
             behind: 0,
             uncommittedChanges: 0,
+            untrackedFiles: 0,
           })),
           getRecentCommits(project.path, 1).catch(() => []),
         ]);
@@ -58,11 +77,20 @@ router.get("/summary", async (_req: Request, res: Response) => {
           ahead: git.ahead,
           behind: git.behind,
           uncommittedChanges: git.uncommittedChanges,
+          untrackedFiles: git.untrackedFiles,
           lastCommitMessage: latestCommit?.message ?? "",
           lastCommitDate: latestCommit?.date ?? "",
         };
       })
     );
+
+    // Sort by latest commit date descending (most recent first)
+    summaries.sort((a, b) => {
+      if (!a.lastCommitDate && !b.lastCommitDate) return 0;
+      if (!a.lastCommitDate) return 1;
+      if (!b.lastCommitDate) return -1;
+      return new Date(b.lastCommitDate).getTime() - new Date(a.lastCommitDate).getTime();
+    });
 
     res.json(summaries);
   } catch (err) {
@@ -107,6 +135,7 @@ router.get("/:id/details", async (req: Request, res: Response) => {
         ahead: 0,
         behind: 0,
         uncommittedChanges: 0,
+        untrackedFiles: 0,
       })),
       getRecentCommits(project.path, 10).catch(() => []),
     ]);

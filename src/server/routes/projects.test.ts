@@ -127,6 +127,7 @@ describe("projects routes", () => {
         ahead: 0,
         behind: 0,
         uncommittedChanges: 0,
+        untrackedFiles: 0,
       });
       mockGetRecentCommits.mockResolvedValue([
         {
@@ -179,6 +180,7 @@ describe("projects routes", () => {
         ahead: 1,
         behind: 0,
         uncommittedChanges: 0,
+        untrackedFiles: 0,
       });
       mockGetRecentCommits.mockResolvedValue([
         {

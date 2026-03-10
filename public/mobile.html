@@ -272,8 +272,11 @@
               <div class="git-item-mobile" x-show="projectDetails?.git?.behind > 0">
                 <span class="git-behind">-<span x-text="projectDetails?.git?.behind"></span> behind</span>
               </div>
-              <div class="git-item-mobile" x-show="!projectDetails?.git?.isClean">
+              <div class="git-item-mobile" x-show="projectDetails?.git?.uncommittedChanges > 0">
                 <span class="git-dirty"><span x-text="projectDetails?.git?.uncommittedChanges"></span> uncommitted</span>
+              </div>
+              <div class="git-item-mobile" x-show="projectDetails?.git?.untrackedFiles > 0">
+                <span class="git-untracked"><span x-text="projectDetails?.git?.untrackedFiles"></span> untracked</span>
               </div>
               <div class="git-item-mobile" x-show="projectDetails?.git?.isClean">
                 <span class="git-clean">Clean</span>
@@ -399,7 +402,8 @@
                 <span class="git-label">Branch:</span>
                 <code class="summary-branch" x-text="p.gitBranch"></code>
                 <span x-show="p.isClean" class="git-clean">Clean</span>
-                <span x-show="!p.isClean" class="git-dirty" x-text="p.uncommittedChanges + ' changed'"></span>
+                <span x-show="p.uncommittedChanges > 0" class="git-dirty" x-text="p.uncommittedChanges + ' changed'"></span>
+                <span x-show="p.untrackedFiles > 0" class="git-untracked" x-text="p.untrackedFiles + ' untracked'"></span>
               </div>
               <div class="summary-card-row" x-show="p.lastCommitMessage">
                 <span class="commit-message-text" x-text="truncate(p.lastCommitMessage, 60)"></span>

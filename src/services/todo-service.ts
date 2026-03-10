@@ -86,13 +86,19 @@ function buildGitAlert(
     ahead: number;
     behind: number;
     uncommittedChanges: number;
+    untrackedFiles: number;
   } | null
 ): string {
   if (!gitStatus) return "";
   const parts: string[] = [];
-  if (!gitStatus.isClean) {
+  if (gitStatus.uncommittedChanges > 0) {
     parts.push(
       `${gitStatus.uncommittedChanges} uncommitted change${gitStatus.uncommittedChanges !== 1 ? "s" : ""}`
+    );
+  }
+  if (gitStatus.untrackedFiles > 0) {
+    parts.push(
+      `${gitStatus.untrackedFiles} untracked file${gitStatus.untrackedFiles !== 1 ? "s" : ""}`
     );
   }
   if (gitStatus.behind > 0) {

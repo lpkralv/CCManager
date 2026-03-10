@@ -3,6 +3,7 @@ import { z } from "zod";
 export const GitStatus = z.object({
   clean: z.boolean(),
   uncommittedChanges: z.number().int().nonnegative(),
+  untrackedFiles: z.number().int().nonnegative(),
   unpushedCommits: z.number().int().nonnegative(),
   lastCommitDate: z.coerce.date().optional(),
   lastCommitHash: z.string().optional(),

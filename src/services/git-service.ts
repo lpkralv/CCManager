@@ -10,6 +10,7 @@ export interface GitStatus {
   ahead: number;
   behind: number;
   uncommittedChanges: number;
+  untrackedFiles: number;
 }
 
 export interface GitCommit {
@@ -52,9 +53,11 @@ export async function getGitStatus(projectPath: string): Promise<GitStatus> {
 
   // Get status porcelain for uncommitted changes count
   const statusOutput = await runGitCommand(projectPath, "status --porcelain");
-  const uncommittedChanges = statusOutput
-    ? statusOutput.split("\n").filter((line) => line.trim()).length
-    : 0;
+  const statusLines = statusOutput
+    ? statusOutput.split("\n").filter((line) => line.trim())
+    : [];
+  const untrackedFiles = statusLines.filter((line) => line.startsWith("??")).length;
+  const uncommittedChanges = statusLines.length - untrackedFiles;
 
   // Get ahead/behind counts if remote exists
   let ahead = 0;
@@ -76,10 +79,11 @@ export async function getGitStatus(projectPath: string): Promise<GitStatus> {
   return {
     localBranch,
     remoteBranch,
-    isClean: uncommittedChanges === 0,
+    isClean: uncommittedChanges === 0 && untrackedFiles === 0,
     ahead,
     behind,
     uncommittedChanges,
+    untrackedFiles,
   };
 }
 

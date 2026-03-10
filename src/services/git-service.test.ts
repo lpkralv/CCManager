@@ -77,6 +77,7 @@ describe("git-service", () => {
       expect(status.remoteBranch).toBe("origin/main");
       expect(status.isClean).toBe(true);
       expect(status.uncommittedChanges).toBe(0);
+      expect(status.untrackedFiles).toBe(0);
       expect(status.ahead).toBe(0);
       expect(status.behind).toBe(0);
     });
@@ -93,7 +94,8 @@ describe("git-service", () => {
 
       expect(status.localBranch).toBe("feature");
       expect(status.isClean).toBe(false);
-      expect(status.uncommittedChanges).toBe(3);
+      expect(status.uncommittedChanges).toBe(2);
+      expect(status.untrackedFiles).toBe(1);
       expect(status.ahead).toBe(2);
       expect(status.behind).toBe(1);
     });

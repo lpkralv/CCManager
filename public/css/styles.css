@@ -535,6 +535,11 @@ textarea {
   font-size: 0.875rem;
 }
 
+.git-untracked {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
 .git-clean {
   color: var(--success);
   font-size: 0.875rem;

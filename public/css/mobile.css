@@ -754,6 +754,7 @@ textarea {
 .git-ahead { color: var(--success); font-size: 0.8125rem; }
 .git-behind { color: var(--warning); font-size: 0.8125rem; }
 .git-dirty { color: var(--warning); font-size: 0.8125rem; }
+.git-untracked { color: var(--text-secondary); font-size: 0.8125rem; }
 .git-clean { color: var(--success); font-size: 0.8125rem; }
 .commit-hash {
   font-family: 'Monaco', 'Menlo', monospace;

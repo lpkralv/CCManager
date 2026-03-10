@@ -1,164 +1,164 @@
 {
-  "generatedAt": "2026-03-08T18:00:00.000Z",
+  "generatedAt": "2026-03-09T12:00:00.000Z",
   "insights": [
     {
       "projectId": "claude-code-manager",
       "phase": "Active Feature Development",
-      "trajectory": "Dashboard expanding with mobile UI, maintenance scheduler, and project insights. 7 modified + 4 untracked files represent the largest uncommitted changeset across all projects.",
-      "nextSteps": "Commit or stage current changes (mobile UI, maintenance scheduler, project insights). Stabilize working tree before adding more features.",
+      "trajectory": "Dashboard expanding with mobile UI, git service improvements, and project insights. 11 modified files represent the largest uncommitted changeset across all projects.",
+      "nextSteps": "Commit or stage current changes (mobile CSS, git service updates, project routes, todo service). Stabilize working tree before adding more features.",
       "confidence": "high",
       "rank": 1,
-      "reasoning": "Most active project by far - largest uncommitted changeset with mobile.html, mobile-app.js, maintenance-scheduler.ts all in flight. do-work queue empty but development clearly ongoing."
+      "reasoning": "Most active project - 11 modified files spanning frontend (mobile.css, styles.css, index.html, mobile.html) and backend (git-service, projects routes, todo-service). 46 archived do-work requests show sustained activity. Empty working queue means development is self-directed."
     },
     {
       "projectId": "math-musings",
       "phase": "Active Research",
-      "trajectory": "Deep exploration of factoring-period-synchrony with sin²↔Fermat equivalences (D-PS-16 through D-PS-19). Now branching into Lean 4 formalization with 10+ untracked files including LeanFormalization/ and Python scripts.",
-      "nextSteps": "Commit the Lean formalization scaffold and creative approaches research. The uncommitted work represents significant progress that should be preserved.",
+      "trajectory": "Deep exploration of factoring-period-synchrony progressed through D-PS-32 to D-PS-38 with Laplace asymptotics and nonlocal transforms. Now branching into multiple new analytic-divisibility problem variants.",
+      "nextSteps": "Commit the 5 modified and 9 untracked files - new problem directories (analytic-divisibility-barriers, -hyperbolic, -quantum, -transforms) represent significant research branching that should be preserved.",
       "confidence": "low",
       "rank": 2,
-      "reasoning": "3 modified + 10 untracked files show very active work. Lean formalization attempt is new since last assessment. Research-driven project with unpredictable trajectory."
+      "reasoning": "5 modified + 9 untracked files show very active work. Research has spawned 4 new problem sub-areas. Paper and formalized conjecture added. Research-driven project with unpredictable trajectory."
+    },
+    {
+      "projectId": "generate-schematic",
+      "phase": "Active Development",
+      "trajectory": "Label-based schematic generation added with full test suite. 17 modified files and 2 untracked ERC reports indicate active iteration on schematic generation features.",
+      "nextSteps": "Commit the label-based generation work and test outputs. Clean up ERC report artifacts.",
+      "confidence": "high",
+      "rank": 3,
+      "reasoning": "17 modified files is a large uncommitted changeset. Recent commits added label-based generation, panel layouts, and manufacturing outputs. Actively evolving tool."
     },
     {
       "projectId": "natebrainmcp",
       "phase": "Initial Build",
-      "trajectory": "MCP server for semantic vector search being actively scaffolded. Staged files (CLAUDE.md, Project Description, VideoTranscript) plus untracked Python project structure (pyproject.toml, src/natebrain/, tests/).",
-      "nextSteps": "Commit the initial project scaffold. Implement core MCP tools (capture, search, retrieve) and get end-to-end pgvector + Voyage AI search working.",
+      "trajectory": "MCP server scaffold committed. Untracked files show webapp UI and server scripts being developed but not yet committed.",
+      "nextSteps": "Commit the webapp.py, static assets, and server scripts. Get end-to-end pgvector + Voyage AI semantic search working.",
       "confidence": "medium",
-      "rank": 3,
-      "reasoning": "Staged and untracked files indicate active bootstrapping from single template commit. Real implementation structure is emerging but uncommitted."
-    },
-    {
-      "projectId": "math-of-intelligence",
-      "phase": "Lean 4 Setup",
-      "trajectory": "Lean 4 + Mathlib project structure created but uncommitted. lakefile.toml, lean-toolchain, and .lean source files all untracked. Formalizing intelligence mathematically.",
-      "nextSteps": "Commit the Lean 4 project scaffold. Define foundational type classes and axioms for the intelligence framework.",
-      "confidence": "low",
       "rank": 4,
-      "reasoning": "9 untracked files including full Lean project structure from only 2 commits. Highly ambitious research project still in scaffolding phase."
+      "reasoning": "4 untracked files (webapp.py, static/, start/stop scripts) indicate active development beyond the initial scaffold. Only 2 commits so far - still in bootstrapping phase."
     },
     {
       "projectId": "pocketwatch-esp32-software",
       "phase": "Post-Migration Stable",
-      "trajectory": "Successfully migrated from Arduino to pure ESP-IDF with 52 KB size reduction. Obsolete demos and LVGL files cleaned up. Clean working tree indicates migration is complete and stable.",
-      "nextSteps": "Complete factory OTA app, then implement primary app framework with native ESP-IDF display driver. Port slideshow and Pac-Man apps.",
+      "trajectory": "Successfully migrated from Arduino to pure ESP-IDF. Obsolete demos and LVGL files cleaned up. Clean working tree indicates migration is complete and stable.",
+      "nextSteps": "Implement primary app framework with native ESP-IDF display driver. Port slideshow and Pac-Man apps to new architecture.",
       "confidence": "high",
       "rank": 5,
-      "reasoning": "Recent commits are all migration cleanup. Clean working tree means the ESP-IDF migration is stable. Next steps are well-defined but no active work in progress."
+      "reasoning": "Recent commits are all migration cleanup (removing obsolete demos, updating sdkconfig). Clean tree means ESP-IDF migration is done. Next phase is app development on new platform."
     },
     {
       "projectId": "pls100n-programmer",
       "phase": "Hardware V2.2 Converging",
-      "trajectory": "Replaced discrete NPN drivers with ULN2804AN for V2.2. Reed relay analysis, Zener protection, and design reviews complete. Firmware features (PIO, verification, truth table) implemented.",
+      "trajectory": "Replaced discrete NPN drivers with ULN2804AN for V2.2. Reed relay analysis, Zener protection, and multiple design reviews complete. Hardware design is stabilizing.",
       "nextSteps": "Finalize V2.2 schematic and order prototype PCBs. Design iteration is converging on a final hardware revision.",
       "confidence": "high",
       "rank": 6,
-      "reasoning": "8+ commits of design reviews and component swaps - classic signs of hardware design convergence. Clean tree means current revision is stable."
+      "reasoning": "Clean tree, multiple design review commits. Component swaps (ULN2804AN, Zener protection) and punch list reviews are classic signs of hardware design convergence."
+    },
+    {
+      "projectId": "math-of-intelligence",
+      "phase": "Lean 4 Setup Complete",
+      "trajectory": "Lean 4 project with Mathlib dependency set up and committed. Clean tree - scaffold is stable but no formalization work has begun beyond setup.",
+      "nextSteps": "Define foundational type classes and axioms for the intelligence framework in Lean 4.",
+      "confidence": "low",
+      "rank": 7,
+      "reasoning": "Only 3 commits. Lean 4 + Mathlib setup is done (clean tree), but the actual mathematical formalization hasn't started. Highly ambitious project."
     },
     {
       "projectId": "s-videooverair",
       "phase": "Scaffold Only",
-      "trajectory": "ESP32-S3 sender + Pi Pico 2W receiver architecture documented. Sender and receiver firmware scaffold committed but contains zero functional code.",
-      "nextSteps": "Implement TVP5150 S-Video capture driver on sender - this is the critical-path component.",
+      "trajectory": "Dual-target firmware architecture decided (ESP32-S3 sender + Pi Pico 2W receiver). Scaffold committed but contains zero functional code.",
+      "nextSteps": "Implement TVP5150 S-Video capture driver on sender - this is the critical-path component for the entire system.",
       "confidence": "high",
-      "rank": 7,
-      "reasoning": "3 commits, clean tree. Architecture decided, firmware scaffolded, but no functional implementation yet. Clear starting point exists."
+      "rank": 8,
+      "reasoning": "3 commits, clean tree. Architecture documented, firmware scaffolded, but no functional implementation yet. Clear starting point exists."
     },
     {
       "projectId": "dadwatch-os",
       "phase": "OS Architecture",
-      "trajectory": "Alternative ESP32-C3 pocketwatch firmware. Core OS design (memory manager, event queue, display/touch/WiFi managers) documented across 4 commits. Clean tree, no do-work queue.",
+      "trajectory": "Alternative ESP32-C3 pocketwatch firmware with core OS design documented. Clean tree, no do-work queue. Priority relative to Pocketwatch ESP32 Software unclear.",
       "nextSteps": "Implement main event loop and memory manager - the foundation everything else builds on.",
       "confidence": "medium",
-      "rank": 8,
-      "reasoning": "4 commits of architecture and docs. Priority relative to Pocketwatch ESP32 Software unclear. No active work in progress."
+      "rank": 9,
+      "reasoning": "4 commits of architecture and docs. Clean tree, no active work. Relationship to Pocketwatch ESP32 Software needs clarification."
     },
     {
       "projectId": "identity-patents",
       "phase": "Filing Preparation",
-      "trajectory": "Provisional patents drafted. Demo decks, investor presentations, and zkLogin vulnerability analysis all complete. All 4 do-work requests archived as completed.",
+      "trajectory": "Provisional patents drafted. Demo decks, investor presentations, and zkLogin vulnerability analysis complete. All 5 do-work requests archived as completed.",
       "nextSteps": "Finalize patent applications for attorney review or direct filing. Demo decks suggest investor conversations may be imminent.",
       "confidence": "medium",
-      "rank": 9,
-      "reasoning": "All queued work completed and archived. Clean tree. External deadlines (provisional patent timing, investor meetings) make this time-sensitive even with clear queue."
+      "rank": 10,
+      "reasoning": "All queued work completed and archived. Clean tree. External deadlines (provisional patent timing, investor meetings) make this potentially time-sensitive."
     },
     {
       "projectId": "c64-next",
       "phase": "Architecture Research",
-      "trajectory": "CEG graphics architecture designed, VIC-II timing reference documented, dithering performance analyzed. MCU selection (ESP32/S3/C6) still open. do-work queue empty.",
-      "nextSteps": "Finalize MCU selection - this blocks all hardware and firmware decisions. Then design the C64 bus interface.",
+      "trajectory": "CEG graphics architecture designed, VIC-II timing reference documented, dithering performance analyzed. MCU selection still open. Empty do-work queue.",
+      "nextSteps": "Finalize MCU selection (ESP32/S3/C6) - this blocks all hardware and firmware decisions.",
       "confidence": "medium",
-      "rank": 10,
-      "reasoning": "8 commits of research docs, clean tree, empty do-work queue. MCU selection is the key decision gate blocking progress."
+      "rank": 11,
+      "reasoning": "Clean tree, empty do-work queue. MCU selection remains the key decision gate blocking further progress."
     },
     {
       "projectId": "manim",
       "phase": "Feature Development",
-      "trajectory": "Building mathematical animation library - Poisson animations, convolution visualizations, dynamic axis scaling. Instruction guide and test scenes added. Clean tree.",
+      "trajectory": "Mathematical animation library with Poisson animations, convolution visualizations, dynamic axis scaling, and instruction guide. Clean tree.",
       "nextSteps": "Implement the LLM-to-Manim code generation pipeline - the natural language interface that is the project's core value proposition.",
       "confidence": "medium",
-      "rank": 11,
-      "reasoning": "8+ commits, individual animations working. But the LLM integration (the project's stated purpose) hasn't been built yet."
+      "rank": 12,
+      "reasoning": "Individual animations working but the LLM integration (the project's stated purpose) hasn't been built yet."
     },
     {
       "projectId": "vintage-radio",
       "phase": "Hardware Design (MP3 Variant)",
-      "trajectory": "MP3 player variant active with DFPlayer Mini clone compatibility. Project restructured for multiple variations. 3D printing guides created. do-work queue exists but empty.",
+      "trajectory": "MP3 player variant active with DFPlayer Mini clone compatibility. Project restructured for multiple variations. 3D printing guides created.",
       "nextSteps": "Complete MP3 variant circuit design and PCB layout. Get first variant working before branching to Bluetooth/WiFi.",
       "confidence": "medium",
-      "rank": 12,
-      "reasoning": "5 commits, clean tree, empty do-work queue. Multi-variant project with MP3 as current focus, waiting for next work items."
+      "rank": 13,
+      "reasoning": "5 commits, clean tree, empty do-work queue. Multi-variant project with MP3 as current focus."
     },
     {
       "projectId": "ebay-listing-skill",
       "phase": "Infrastructure Built",
-      "trajectory": "TypeScript project with AI-powered listing generation and Serena config. Photo analysis and natural language parsing implemented. eBay API integration not yet done.",
+      "trajectory": "TypeScript project with AI-powered listing generation, natural language parsing, and Serena config. Photo analysis implemented. eBay API integration not yet done.",
       "nextSteps": "Implement eBay API integration and test end-to-end listing creation flow.",
       "confidence": "medium",
-      "rank": 13,
-      "reasoning": "6 commits, clean tree. AI/analysis side works but the eBay API connection (the output channel) is still missing."
+      "rank": 14,
+      "reasoning": "5 commits, clean tree. AI/analysis side works but the eBay API connection (the output channel) is still missing."
     },
     {
       "projectId": "ship2ship",
       "phase": "Early Scaffolding",
-      "trajectory": "Python game book generation project with investor demo spec and ship movement model requirements documented. Basic scaffolding in place from 4 commits.",
+      "trajectory": "Python game book generation for turn-based naval combat. Investor demo spec and ship movement model requirements documented. Basic scaffolding from 4 commits.",
       "nextSteps": "Implement the ship movement model and demo specification outlined in recent commits.",
       "confidence": "low",
-      "rank": 14,
+      "rank": 15,
       "reasoning": "4 commits, mostly scaffolding and specs. Direction is defined but very little implementation exists."
     },
     {
       "projectId": "fw-api-v1-technical-manual",
       "phase": "Early Documentation",
-      "trajectory": "Initialized with OpenAPI spec as source material. Only 2 commits (template + init). Manual creation just beginning.",
-      "nextSteps": "Extract and document API endpoints systematically from the OpenAPI specification.",
+      "trajectory": "Initialized with OpenAPI spec as source material. Only 2 commits. Manual creation just beginning.",
+      "nextSteps": "Extract and document API endpoints systematically from the OpenAPI 3.1.0 specification.",
       "confidence": "high",
-      "rank": 15,
+      "rank": 16,
       "reasoning": "Straightforward documentation generation from known spec. Low ambiguity, just needs time."
     },
     {
       "projectId": "tiny-music-library",
       "phase": "Stable Library",
-      "trajectory": "ATtiny85 music library with documentation reorganized and hardware definitions updated. 4 untracked IDE/config files (.mcp.json, .serena/, .vscode/, test.txt).",
-      "nextSteps": "Clean up untracked config files. Otherwise functionally complete for current use case.",
-      "confidence": "high",
-      "rank": 16,
-      "reasoning": "4 commits, library serves its purpose for pocketwatch audio. Only housekeeping remains."
-    },
-    {
-      "projectId": "generate-schematic",
-      "phase": "Production Ready",
-      "trajectory": "PCB layout with manufacturing outputs complete. Panel layouts and KiCad backups added. 3 untracked files (ERC reports, tests/) are artifacts.",
-      "nextSteps": "Clean up untracked ERC files. Otherwise functionally complete - future work only if new schematics are needed.",
+      "trajectory": "ATtiny85 music library with documentation reorganized and hardware definitions updated. 4 untracked IDE/config files are artifacts.",
+      "nextSteps": "Gitignore or commit untracked config files (.mcp.json, .serena/, .vscode/, test.txt). Otherwise functionally complete.",
       "confidence": "high",
       "rank": 17,
-      "reasoning": "7 commits, manufacturing outputs exist. Tool project serving the Pocketwatch ATtiny85 board."
+      "reasoning": "4 commits, library serves its purpose for pocketwatch audio. Only housekeeping remains."
     },
     {
       "projectId": "pocketwatch-software",
       "phase": "Stable / Maintenance",
       "trajectory": "Feature-complete firmware at 83.5% Flash, 75.4% RAM. Pre-compiled hex images ready. Hardware v3.0/v3.1 variants supported with 109 GM instruments.",
-      "nextSteps": "Coordinate UART protocol updates with Pocketwatch ESP32 side. Otherwise in maintenance mode.",
+      "nextSteps": "Coordinate UART protocol updates with Pocketwatch ESP32 side as needed. Otherwise in maintenance mode.",
       "confidence": "high",
       "rank": 18,
       "reasoning": "Feature-complete with deployment artifacts. Only triggers new work when ESP32 side needs protocol changes."
@@ -166,11 +166,11 @@
     {
       "projectId": "simple-macropad",
       "phase": "Complete",
-      "trajectory": "All 8 requirements processed (7 completed, 1 failed: commit-and-push). QMK+VIAL firmware working with hardware wiring finalized. Clean tree.",
+      "trajectory": "All 8 do-work requests processed (7 completed, 1 failed). QMK+VIAL firmware working with hardware wiring finalized. Clean tree.",
       "nextSteps": "None. Project is done.",
       "confidence": "high",
       "rank": 19,
-      "reasoning": "8 archived do-work tasks, clean tree, recent commits are minor hardware pin fixes. Project is finished."
+      "reasoning": "8 archived do-work tasks, clean tree. Recent commits are minor hardware pin fixes. Project is finished."
     },
     {
       "projectId": "moving-claude-code-projects",
@@ -184,11 +184,11 @@
     {
       "projectId": "soapmaking",
       "phase": "Not Started",
-      "trajectory": "Only has CCSTARTUP template commit. Research project for lavender/shea butter soap making not yet begun.",
+      "trajectory": "Only has CCSTARTUP template commit. No CLAUDE.md. Research project for lavender/shea butter soap making not yet begun.",
       "nextSteps": "Begin research into small-batch soap making process, ingredients, and recipes.",
       "confidence": "high",
       "rank": 21,
-      "reasoning": "Single template commit, clean tree, no do-work directory. Project exists but no work has been done."
+      "reasoning": "Single template commit, clean tree, no do-work directory, no CLAUDE.md. Project exists but no work has been done."
     },
     {
       "projectId": "ccstartup",
@@ -197,7 +197,7 @@
       "nextSteps": "None unless template needs updates for new project types.",
       "confidence": "high",
       "rank": 22,
-      "reasoning": "Template project that has been successfully used to spawn many other projects. Stable and complete."
+      "reasoning": "Template project successfully used to spawn many other projects. Stable and complete."
     }
   ]
 }
